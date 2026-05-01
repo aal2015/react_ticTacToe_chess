@@ -1,19 +1,40 @@
 #chessGameBoard {
-    width: 560px;
-    height: 560px;
+    width: 480px;
+    height: 480px;
+
     display: flex;
     flex-wrap: wrap;
 }
 
 .square {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .whiteSquare {
-    background-color: white;
+    background-color: #ADE8F4;
 }
 
 .darkBlue {
     background-color: #0096C7;
+}
+
+.blackPiece {
+    color: #111;
+    font-size: 35px;
+}
+
+.whitePiece {
+    color: white;
+    font-size: 35px;
+
+    filter:
+        drop-shadow(1px 0 black)
+        drop-shadow(-1px 0 black)
+        drop-shadow(0 1px black)
+        drop-shadow(0 -1px black);
 }
