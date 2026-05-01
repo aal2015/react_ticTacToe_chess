@@ -1,0 +1,19 @@
+#chessGameBoard {
+    width: 560px;
+    height: 560px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.square {
+    width: 70px;
+    height: 70px;
+}
+
+.whiteSquare {
+    background-color: white;
+}
+
+.darkBlue {
+    background-color: #0096C7;
+}
