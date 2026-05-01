@@ -13,10 +13,22 @@ function App() {
   }
 
   return (
-    <>
-      <button type="button" onClick={() => navigatePage('/ticTacToe')}>Play Tic Tac Toe</button>
-      <button type="button" onClick={() => navigatePage('/chess')}>Play Chess</button>
-    </>
+    <div className='startPageDiv'>
+      <button
+        className='gameSelectButton'
+        type="button"
+        onClick={() => navigatePage('/ticTacToe')}
+      >
+        Play Tic Tac Toe
+      </button>
+      <button
+        className='gameSelectButton'
+        type="button"
+        onClick={() => navigatePage('/chess')}
+      >
+        Play Chess
+      </button>
+    </ div>
   )
 }
 
