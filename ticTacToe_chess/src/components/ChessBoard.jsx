@@ -27,7 +27,8 @@ const pieceIcons = {
     bk: faChessKing
 };
 
-const ChessBoard = ({ boardState, onPieceSelect }) => {
+const ChessBoard = ({ boardState, onPieceSelect, activeSelect }) => {
+    
     return (
         <div id="chessGameBoard">
             {boardState.map((row, rowIndex) =>
@@ -38,13 +39,13 @@ const ChessBoard = ({ boardState, onPieceSelect }) => {
                     return (
                         <div
                             key={`${rowIndex}-${cellIndex}`}
-                            className={`square ${
-                                isWhiteSquare
-                                    ? 'whiteSquare'
-                                    : 'darkBlue'
-                            }`}
+                            className={`
+                                square 
+                                ${isWhiteSquare ? 'whiteSquare' : 'darkBlue'}
+                                ${activeSelect && rowIndex === activeSelect[0] && cellIndex === activeSelect[1] ? 'activeSelect' : ''}
+                                `}
 
-                            onClick={cell ? onPieceSelect: null}
+                            onClick={() => onPieceSelect(rowIndex, cellIndex)}
                         >
                             {cell && (
                                 <FontAwesomeIcon

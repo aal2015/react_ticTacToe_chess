@@ -14,15 +14,32 @@ const Chess = () => {
 
     ]);
     const [turn, setTurn] = useState("white");
+    const [selected, setSelected] = useState(null);
 
-    const pieceSelect = () => {
-        console.log("Select!");
+    const pieceSelect = (row, col) => {
+        if (selected) {
+            let boardClone = [...board];
+            boardClone[row][col] = boardClone[selected[0]][selected[1]]; 
+            boardClone[selected[0]][selected[1]] = '';
+            setBoard(boardClone);
+            setSelected(null);
+            return;
+        }
+
+        if (board[row][col] === '') {
+            return;
+        }
+        setSelected([row, col]);
     }
-    
+
     return (
         <>
             <p>Chess component</p>
-            <ChessBoard boardState={board} onPieceSelect={pieceSelect} />
+            <ChessBoard
+                boardState={board}
+                onPieceSelect={pieceSelect}
+                activeSelect={selected}
+            />
         </>
     );
 }
