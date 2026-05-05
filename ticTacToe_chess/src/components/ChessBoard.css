@@ -26,12 +26,13 @@
 .blackPiece {
     color: #111;
     font-size: 35px;
+    cursor: pointer;
 }
 
 .whitePiece {
     color: white;
     font-size: 35px;
-
+    cursor: pointer;
     filter:
         drop-shadow(1px 0 black)
         drop-shadow(-1px 0 black)

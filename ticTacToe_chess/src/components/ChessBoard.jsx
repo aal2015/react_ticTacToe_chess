@@ -27,7 +27,7 @@ const pieceIcons = {
     bk: faChessKing
 };
 
-const ChessBoard = ({ boardState }) => {
+const ChessBoard = ({ boardState, onPieceSelect }) => {
     return (
         <div id="chessGameBoard">
             {boardState.map((row, rowIndex) =>
@@ -43,6 +43,8 @@ const ChessBoard = ({ boardState }) => {
                                     ? 'whiteSquare'
                                     : 'darkBlue'
                             }`}
+
+                            onClick={cell ? onPieceSelect: null}
                         >
                             {cell && (
                                 <FontAwesomeIcon

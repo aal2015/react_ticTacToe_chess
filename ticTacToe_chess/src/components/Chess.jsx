@@ -13,10 +13,16 @@ const Chess = () => {
         ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
 
     ]);
+    const [turn, setTurn] = useState("white");
+
+    const pieceSelect = () => {
+        console.log("Select!");
+    }
+    
     return (
         <>
             <p>Chess component</p>
-            <ChessBoard boardState={board}/>
+            <ChessBoard boardState={board} onPieceSelect={pieceSelect} />
         </>
     );
 }
