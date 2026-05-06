@@ -23,6 +23,12 @@ const Chess = () => {
             boardClone[selected[0]][selected[1]] = '';
             setBoard(boardClone);
             setSelected(null);
+
+            if (turn === "white") {
+                setTurn("black");
+            } else if (turn === "black") {
+                setTurn("white");
+            }
             return;
         }
 
@@ -34,7 +40,7 @@ const Chess = () => {
 
     return (
         <>
-            <p>Chess component</p>
+            <p>{turn === "white" ? 'White Turn' : 'Black turn'}</p>
             <ChessBoard
                 boardState={board}
                 onPieceSelect={pieceSelect}
