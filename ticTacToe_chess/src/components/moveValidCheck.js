@@ -5,6 +5,16 @@ const checkPossibleMoveCondition = (
     col
 ) => {
 
+    // out of bounds
+    if (
+        row < 0 ||
+        row >= 8 ||
+        col < 0 ||
+        col >= 8
+    ) {
+        return [false, false];
+    }
+
     // empty square
     if (board[row][col] === '') {
         return [true, true];
@@ -24,7 +34,11 @@ const checkPossibleMoveCondition = (
     return [true, false];
 };
 
-const generateRookMoves = (board, selected) => {
+const generateSlidingMoves = (
+    board,
+    selected,
+    directions
+) => {
 
     const curRow = selected[0];
     const curCol = selected[1];
@@ -36,103 +50,243 @@ const generateRookMoves = (board, selected) => {
 
     let possibleMoves = [];
 
-    // LEFT
-    for (let col = curCol - 1; col >= 0; col--) {
+    for (const [rowDir, colDir] of directions) {
 
-        const [append_flag, continue_flag] =
-            checkPossibleMoveCondition(
-                board,
-                movingPieceColor,
-                curRow,
-                col
-            );
+        let row = curRow + rowDir;
+        let col = curCol + colDir;
 
-        if (append_flag) {
-            possibleMoves.push([curRow, col]);
-        }
+        while (
+            row >= 0 &&
+            row < 8 &&
+            col >= 0 &&
+            col < 8
+        ) {
 
-        if (!continue_flag) {
-            break;
-        }
-    }
+            const [append_flag, continue_flag] =
+                checkPossibleMoveCondition(
+                    board,
+                    movingPieceColor,
+                    row,
+                    col
+                );
 
-    // RIGHT
-    for (let col = curCol + 1; col < 8; col++) {
+            if (append_flag) {
+                possibleMoves.push([row, col]);
+            }
 
-        const [append_flag, continue_flag] =
-            checkPossibleMoveCondition(
-                board,
-                movingPieceColor,
-                curRow,
-                col
-            );
+            if (!continue_flag) {
+                break;
+            }
 
-        if (append_flag) {
-            possibleMoves.push([curRow, col]);
-        }
-
-        if (!continue_flag) {
-            break;
-        }
-    }
-
-    // UP
-    for (let row = curRow - 1; row >= 0; row--) {
-
-        const [append_flag, continue_flag] =
-            checkPossibleMoveCondition(
-                board,
-                movingPieceColor,
-                row,
-                curCol
-            );
-
-        if (append_flag) {
-            possibleMoves.push([row, curCol]);
-        }
-
-        if (!continue_flag) {
-            break;
-        }
-    }
-
-    // DOWN
-    for (let row = curRow + 1; row < 8; row++) {
-
-        const [append_flag, continue_flag] =
-            checkPossibleMoveCondition(
-                board,
-                movingPieceColor,
-                row,
-                curCol
-            );
-
-        if (append_flag) {
-            possibleMoves.push([row, curCol]);
-        }
-
-        if (!continue_flag) {
-            break;
+            row += rowDir;
+            col += colDir;
         }
     }
 
     return possibleMoves;
 };
 
-export const isMoveValid = (board, selected, turn, row, col) => {
-    const pieceColor = board[selected[0]][selected[1]][0] === 'w' ? "white" : "black";
-    const piece = board[selected[0]][selected[1]][1];
+const generateRookMoves = (board, selected) => {
 
-    // check turn validation
+    const directions = [
+        [0, -1],
+        [0, 1],
+        [-1, 0],
+        [1, 0]
+    ];
+
+    return generateSlidingMoves(
+        board,
+        selected,
+        directions
+    );
+};
+
+const generateBishopMoves = (board, selected) => {
+
+    const directions = [
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1]
+    ];
+
+    return generateSlidingMoves(
+        board,
+        selected,
+        directions
+    );
+};
+
+const generateQueenMoves = (board, selected) => {
+
+    const directions = [
+        [0, -1],
+        [0, 1],
+        [-1, 0],
+        [1, 0],
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1]
+    ];
+
+    return generateSlidingMoves(
+        board,
+        selected,
+        directions
+    );
+};
+
+const generateKnightMoves = (board, selected) => {
+
+    const curRow = selected[0];
+    const curCol = selected[1];
+
+    const movingPieceColor =
+        board[curRow][curCol][0] === 'w'
+            ? 'white'
+            : 'black';
+
+    let possibleMoves = [];
+
+    const knightMoves = [
+        [-2, -1],
+        [-2, 1],
+        [-1, -2],
+        [-1, 2],
+        [1, -2],
+        [1, 2],
+        [2, -1],
+        [2, 1]
+    ];
+
+    for (const [rowOffset, colOffset] of knightMoves) {
+
+        const row = curRow + rowOffset;
+        const col = curCol + colOffset;
+
+        const [append_flag] =
+            checkPossibleMoveCondition(
+                board,
+                movingPieceColor,
+                row,
+                col
+            );
+
+        if (append_flag) {
+            possibleMoves.push([row, col]);
+        }
+    }
+
+    return possibleMoves;
+};
+
+const generateKingMoves = (board, selected) => {
+
+    const curRow = selected[0];
+    const curCol = selected[1];
+
+    const movingPieceColor =
+        board[curRow][curCol][0] === 'w'
+            ? 'white'
+            : 'black';
+
+    let possibleMoves = [];
+
+    const kingMoves = [
+        [-1, -1],
+        [-1, 0],
+        [-1, 1],
+        [0, -1],
+        [0, 1],
+        [1, -1],
+        [1, 0],
+        [1, 1]
+    ];
+
+    for (const [rowOffset, colOffset] of kingMoves) {
+
+        const row = curRow + rowOffset;
+        const col = curCol + colOffset;
+
+        const [append_flag] =
+            checkPossibleMoveCondition(
+                board,
+                movingPieceColor,
+                row,
+                col
+            );
+
+        if (append_flag) {
+            possibleMoves.push([row, col]);
+        }
+    }
+
+    return possibleMoves;
+};
+
+export const isMoveValid = (
+    board,
+    selected,
+    turn,
+    row,
+    col
+) => {
+
+    const pieceColor =
+        board[selected[0]][selected[1]][0] === 'w'
+            ? 'white'
+            : 'black';
+
+    const piece =
+        board[selected[0]][selected[1]][1];
+
+    // turn validation
     if (pieceColor !== turn) {
         return false;
     }
 
-    // generate possible piece moves for move validation
+    let possibleMoves = [];
+
     switch (piece) {
+
         case "r":
-            console.log(generateRookMoves(board, selected));
+            possibleMoves =
+                generateRookMoves(board, selected);
+            break;
+
+        case "b":
+            possibleMoves =
+                generateBishopMoves(board, selected);
+            break;
+
+        case "q":
+            possibleMoves =
+                generateQueenMoves(board, selected);
+            break;
+
+        case "n":
+            possibleMoves =
+                generateKnightMoves(board, selected);
+            break;
+
+        case "k":
+            possibleMoves =
+                generateKingMoves(board, selected);
+            break;
+        case "p":
+            return true;
+
+        default:
+            return false;
     }
 
-    return true;
-}
+    console.log(possibleMoves);
+
+    return possibleMoves.some(
+        ([moveRow, moveCol]) =>
+            moveRow === row &&
+            moveCol === col
+    );
+};
