@@ -263,15 +263,80 @@ const generatePawnMoves = (
     }
 
     // captures
-    increments.push([
-        forwardDirection,
-        -1
-    ]);
+    const leftCaptureRow =
+        curRow + forwardDirection;
 
-    increments.push([
-        forwardDirection,
-        1
-    ]);
+    const leftCaptureCol =
+        curCol - 1;
+
+    if (
+        leftCaptureRow >= 0 &&
+        leftCaptureRow < 8 &&
+        leftCaptureCol >= 0 &&
+        leftCaptureCol < 8
+    ) {
+
+        const targetPiece =
+            board[leftCaptureRow][leftCaptureCol];
+
+        // piece exists
+        if (targetPiece !== '') {
+
+            const targetPieceColor =
+                targetPiece[0] === 'w'
+                    ? 'white'
+                    : 'black';
+
+            // enemy piece
+            if (
+                targetPieceColor !== pieceColor
+            ) {
+
+                possibleMoves.push([
+                    leftCaptureRow,
+                    leftCaptureCol
+                ]);
+            }
+        }
+    }
+
+    // CAPTURE RIGHT
+    const rightCaptureRow =
+        curRow + forwardDirection;
+
+    const rightCaptureCol =
+        curCol + 1;
+
+    if (
+        rightCaptureRow >= 0 &&
+        rightCaptureRow < 8 &&
+        rightCaptureCol >= 0 &&
+        rightCaptureCol < 8
+    ) {
+
+        const targetPiece =
+            board[rightCaptureRow][rightCaptureCol];
+
+        // piece exists
+        if (targetPiece !== '') {
+
+            const targetPieceColor =
+                targetPiece[0] === 'w'
+                    ? 'white'
+                    : 'black';
+
+            // enemy piece
+            if (
+                targetPieceColor !== pieceColor
+            ) {
+
+                possibleMoves.push([
+                    rightCaptureRow,
+                    rightCaptureCol
+                ]);
+            }
+        }
+    }
 
     let possibleMoves = [];
 };
