@@ -226,6 +226,56 @@ const generateKingMoves = (board, selected) => {
     return possibleMoves;
 };
 
+const generatePawnMoves = (
+    board,
+    selected,
+    pieceColor
+) => {
+
+    const curRow = selected[0];
+    const curCol = selected[1];
+
+    const forwardDirection =
+        pieceColor === 'white'
+            ? -1
+            : 1;
+
+    const startRow =
+        pieceColor === 'white'
+            ? 6
+            : 1;
+
+    let increments = [];
+
+    // move forward
+    increments.push([
+        forwardDirection,
+        0
+    ]);
+
+    // double move
+    if (curRow === startRow) {
+
+        increments.push([
+            forwardDirection * 2,
+            0
+        ]);
+    }
+
+    // captures
+    increments.push([
+        forwardDirection,
+        -1
+    ]);
+
+    increments.push([
+        forwardDirection,
+        1
+    ]);
+
+    let possibleMoves = [];
+};
+
 export const isMoveValid = (
     board,
     selected,
@@ -233,7 +283,6 @@ export const isMoveValid = (
     row,
     col
 ) => {
-
     const pieceColor =
         board[selected[0]][selected[1]][0] === 'w'
             ? 'white'
