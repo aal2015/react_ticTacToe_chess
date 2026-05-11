@@ -5,7 +5,6 @@ const checkPossibleMoveCondition = (
     col
 ) => {
 
-    // out of bounds
     if (
         row < 0 ||
         row >= 8 ||
@@ -15,7 +14,6 @@ const checkPossibleMoveCondition = (
         return [false, false];
     }
 
-    // empty square
     if (board[row][col] === '') {
         return [true, true];
     }
@@ -25,12 +23,10 @@ const checkPossibleMoveCondition = (
             ? 'white'
             : 'black';
 
-    // same color piece
     if (pieceColor === movingPieceColor) {
         return [false, false];
     }
 
-    // enemy piece
     return [true, false];
 };
 
@@ -62,7 +58,10 @@ const generateSlidingMoves = (
             col < 8
         ) {
 
-            const [append_flag, continue_flag] =
+            const [
+                append_flag,
+                continue_flag
+            ] =
                 checkPossibleMoveCondition(
                     board,
                     movingPieceColor,
@@ -86,59 +85,65 @@ const generateSlidingMoves = (
     return possibleMoves;
 };
 
-const generateRookMoves = (board, selected) => {
-
-    const directions = [
-        [0, -1],
-        [0, 1],
-        [-1, 0],
-        [1, 0]
-    ];
+const generateRookMoves = (
+    board,
+    selected
+) => {
 
     return generateSlidingMoves(
         board,
         selected,
-        directions
+        [
+            [0, -1],
+            [0, 1],
+            [-1, 0],
+            [1, 0]
+        ]
     );
 };
 
-const generateBishopMoves = (board, selected) => {
-
-    const directions = [
-        [-1, -1],
-        [-1, 1],
-        [1, -1],
-        [1, 1]
-    ];
+const generateBishopMoves = (
+    board,
+    selected
+) => {
 
     return generateSlidingMoves(
         board,
         selected,
-        directions
+        [
+            [-1, -1],
+            [-1, 1],
+            [1, -1],
+            [1, 1]
+        ]
     );
 };
 
-const generateQueenMoves = (board, selected) => {
-
-    const directions = [
-        [0, -1],
-        [0, 1],
-        [-1, 0],
-        [1, 0],
-        [-1, -1],
-        [-1, 1],
-        [1, -1],
-        [1, 1]
-    ];
+const generateQueenMoves = (
+    board,
+    selected
+) => {
 
     return generateSlidingMoves(
         board,
         selected,
-        directions
+        [
+            [0, -1],
+            [0, 1],
+            [-1, 0],
+            [1, 0],
+            [-1, -1],
+            [-1, 1],
+            [1, -1],
+            [1, 1]
+        ]
     );
 };
 
-const generateKnightMoves = (board, selected) => {
+const generateKnightMoves = (
+    board,
+    selected
+) => {
 
     const curRow = selected[0];
     const curCol = selected[1];
@@ -147,8 +152,6 @@ const generateKnightMoves = (board, selected) => {
         board[curRow][curCol][0] === 'w'
             ? 'white'
             : 'black';
-
-    let possibleMoves = [];
 
     const knightMoves = [
         [-2, -1],
@@ -161,10 +164,18 @@ const generateKnightMoves = (board, selected) => {
         [2, 1]
     ];
 
-    for (const [rowOffset, colOffset] of knightMoves) {
+    let possibleMoves = [];
 
-        const row = curRow + rowOffset;
-        const col = curCol + colOffset;
+    for (
+        const [rowOffset, colOffset]
+        of knightMoves
+    ) {
+
+        const row =
+            curRow + rowOffset;
+
+        const col =
+            curCol + colOffset;
 
         const [append_flag] =
             checkPossibleMoveCondition(
@@ -182,7 +193,10 @@ const generateKnightMoves = (board, selected) => {
     return possibleMoves;
 };
 
-const generateKingMoves = (board, selected) => {
+const generateKingMoves = (
+    board,
+    selected
+) => {
 
     const curRow = selected[0];
     const curCol = selected[1];
@@ -191,8 +205,6 @@ const generateKingMoves = (board, selected) => {
         board[curRow][curCol][0] === 'w'
             ? 'white'
             : 'black';
-
-    let possibleMoves = [];
 
     const kingMoves = [
         [-1, -1],
@@ -205,10 +217,18 @@ const generateKingMoves = (board, selected) => {
         [1, 1]
     ];
 
-    for (const [rowOffset, colOffset] of kingMoves) {
+    let possibleMoves = [];
 
-        const row = curRow + rowOffset;
-        const col = curCol + colOffset;
+    for (
+        const [rowOffset, colOffset]
+        of kingMoves
+    ) {
+
+        const row =
+            curRow + rowOffset;
+
+        const col =
+            curCol + colOffset;
 
         const [append_flag] =
             checkPossibleMoveCondition(
@@ -229,7 +249,9 @@ const generateKingMoves = (board, selected) => {
 const generatePawnMoves = (
     board,
     selected,
-    pieceColor
+    pieceColor,
+    enPassantState,
+    moveCount
 ) => {
 
     const curRow = selected[0];
@@ -245,100 +267,136 @@ const generatePawnMoves = (
             ? 6
             : 1;
 
-    let increments = [];
-
-    // move forward
-    increments.push([
-        forwardDirection,
-        0
-    ]);
-
-    // double move
-    if (curRow === startRow) {
-
-        increments.push([
-            forwardDirection * 2,
-            0
-        ]);
-    }
-
-    // captures
-    const leftCaptureRow =
-        curRow + forwardDirection;
-
-    const leftCaptureCol =
-        curCol - 1;
-
-    if (
-        leftCaptureRow >= 0 &&
-        leftCaptureRow < 8 &&
-        leftCaptureCol >= 0 &&
-        leftCaptureCol < 8
-    ) {
-
-        const targetPiece =
-            board[leftCaptureRow][leftCaptureCol];
-
-        // piece exists
-        if (targetPiece !== '') {
-
-            const targetPieceColor =
-                targetPiece[0] === 'w'
-                    ? 'white'
-                    : 'black';
-
-            // enemy piece
-            if (
-                targetPieceColor !== pieceColor
-            ) {
-
-                possibleMoves.push([
-                    leftCaptureRow,
-                    leftCaptureCol
-                ]);
-            }
-        }
-    }
-
-    // CAPTURE RIGHT
-    const rightCaptureRow =
-        curRow + forwardDirection;
-
-    const rightCaptureCol =
-        curCol + 1;
-
-    if (
-        rightCaptureRow >= 0 &&
-        rightCaptureRow < 8 &&
-        rightCaptureCol >= 0 &&
-        rightCaptureCol < 8
-    ) {
-
-        const targetPiece =
-            board[rightCaptureRow][rightCaptureCol];
-
-        // piece exists
-        if (targetPiece !== '') {
-
-            const targetPieceColor =
-                targetPiece[0] === 'w'
-                    ? 'white'
-                    : 'black';
-
-            // enemy piece
-            if (
-                targetPieceColor !== pieceColor
-            ) {
-
-                possibleMoves.push([
-                    rightCaptureRow,
-                    rightCaptureCol
-                ]);
-            }
-        }
-    }
+    const enemyColor =
+        pieceColor === 'white'
+            ? 'black'
+            : 'white';
 
     let possibleMoves = [];
+
+    // FORWARD ONE
+
+    const oneStepRow =
+        curRow + forwardDirection;
+
+    if (
+        oneStepRow >= 0 &&
+        oneStepRow < 8 &&
+        board[oneStepRow][curCol] === ''
+    ) {
+
+        possibleMoves.push([
+            oneStepRow,
+            curCol
+        ]);
+
+        // FORWARD TWO
+
+        const twoStepRow =
+            curRow + forwardDirection * 2;
+
+        if (
+            curRow === startRow &&
+            board[twoStepRow][curCol] === ''
+        ) {
+
+            possibleMoves.push([
+                twoStepRow,
+                curCol
+            ]);
+        }
+    }
+
+    // CAPTURES
+
+    const captureOffsets = [-1, 1];
+
+    for (const colOffset of captureOffsets) {
+
+        const captureRow =
+            curRow + forwardDirection;
+
+        const captureCol =
+            curCol + colOffset;
+
+        if (
+            captureRow < 0 ||
+            captureRow >= 8 ||
+            captureCol < 0 ||
+            captureCol >= 8
+        ) {
+            continue;
+        }
+
+        const targetPiece =
+            board[captureRow][captureCol];
+
+        if (targetPiece !== '') {
+
+            const targetPieceColor =
+                targetPiece[0] === 'w'
+                    ? 'white'
+                    : 'black';
+
+            if (
+                targetPieceColor === enemyColor
+            ) {
+
+                possibleMoves.push([
+                    captureRow,
+                    captureCol
+                ]);
+            }
+        }
+    }
+
+    // EN PASSANT
+
+    if (
+        enPassantState &&
+        moveCount -
+        enPassantState.moveCount === 1
+    ) {
+
+        const {
+            row,
+            col,
+            pieceColor: enemyPawnColor
+        } = enPassantState;
+
+        if (
+            enemyPawnColor === enemyColor
+        ) {
+
+            // LEFT
+
+            if (
+                row === curRow &&
+                col === curCol - 1
+            ) {
+
+                possibleMoves.push([
+                    curRow + forwardDirection,
+                    curCol - 1
+                ]);
+            }
+
+            // RIGHT
+
+            if (
+                row === curRow &&
+                col === curCol + 1
+            ) {
+
+                possibleMoves.push([
+                    curRow + forwardDirection,
+                    curCol + 1
+                ]);
+            }
+        }
+    }
+
+    return possibleMoves;
 };
 
 export const isMoveValid = (
@@ -346,8 +404,11 @@ export const isMoveValid = (
     selected,
     turn,
     row,
-    col
+    col,
+    enPassantState,
+    moveCount
 ) => {
+
     const pieceColor =
         board[selected[0]][selected[1]][0] === 'w'
             ? 'white'
@@ -356,7 +417,6 @@ export const isMoveValid = (
     const piece =
         board[selected[0]][selected[1]][1];
 
-    // turn validation
     if (pieceColor !== turn) {
         return false;
     }
@@ -365,38 +425,60 @@ export const isMoveValid = (
 
     switch (piece) {
 
-        case "r":
+        case 'r':
             possibleMoves =
-                generateRookMoves(board, selected);
+                generateRookMoves(
+                    board,
+                    selected
+                );
             break;
 
-        case "b":
+        case 'b':
             possibleMoves =
-                generateBishopMoves(board, selected);
+                generateBishopMoves(
+                    board,
+                    selected
+                );
             break;
 
-        case "q":
+        case 'q':
             possibleMoves =
-                generateQueenMoves(board, selected);
+                generateQueenMoves(
+                    board,
+                    selected
+                );
             break;
 
-        case "n":
+        case 'n':
             possibleMoves =
-                generateKnightMoves(board, selected);
+                generateKnightMoves(
+                    board,
+                    selected
+                );
             break;
 
-        case "k":
+        case 'k':
             possibleMoves =
-                generateKingMoves(board, selected);
+                generateKingMoves(
+                    board,
+                    selected
+                );
             break;
-        case "p":
-            return true;
+
+        case 'p':
+            possibleMoves =
+                generatePawnMoves(
+                    board,
+                    selected,
+                    pieceColor,
+                    enPassantState,
+                    moveCount
+                );
+            break;
 
         default:
             return false;
     }
-
-    console.log(possibleMoves);
 
     return possibleMoves.some(
         ([moveRow, moveCol]) =>
