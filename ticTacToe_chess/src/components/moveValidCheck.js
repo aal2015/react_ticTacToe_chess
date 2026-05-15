@@ -30,6 +30,121 @@ const checkPossibleMoveCondition = (
     return [true, false];
 };
 
+const isSquareUnderAttack = (
+    board,
+    targetRow,
+    targetCol,
+    enemyColor
+) => {
+
+    for (let row = 0; row < 8; row++) {
+
+        for (let col = 0; col < 8; col++) {
+
+            const piece = board[row][col];
+
+            if (piece === '') {
+                continue;
+            }
+
+            const pieceColor =
+                piece[0] === 'w'
+                    ? 'white'
+                    : 'black';
+
+            if (pieceColor !== enemyColor) {
+                continue;
+            }
+
+            const pieceType = piece[1];
+
+            let possibleMoves = [];
+
+            switch (pieceType) {
+
+                case 'r':
+                    possibleMoves =
+                        generateRookMoves(
+                            board,
+                            [row, col]
+                        );
+                    break;
+
+                case 'b':
+                    possibleMoves =
+                        generateBishopMoves(
+                            board,
+                            [row, col]
+                        );
+                    break;
+
+                case 'q':
+                    possibleMoves =
+                        generateQueenMoves(
+                            board,
+                            [row, col]
+                        );
+                    break;
+
+                case 'n':
+                    possibleMoves =
+                        generateKnightMoves(
+                            board,
+                            [row, col]
+                        );
+                    break;
+
+                case 'k':
+                    const kingDirections = [
+                        [-1, -1],
+                        [-1, 0],
+                        [-1, 1],
+                        [0, -1],
+                        [0, 1],
+                        [1, -1],
+                        [1, 0],
+                        [1, 1]
+                    ];
+
+                    possibleMoves = kingDirections.map(
+                        ([rowOffset, colOffset]) => [
+                            row + rowOffset,
+                            col + colOffset
+                        ]
+                    );
+
+                    break;
+
+                case 'p':
+                    const pawnDirection =
+                        pieceColor === 'white'
+                            ? -1
+                            : 1;
+
+                    possibleMoves = [
+                        [row + pawnDirection, col - 1],
+                        [row + pawnDirection, col + 1]
+                    ];
+
+                    break
+            }
+
+            const attacking =
+                possibleMoves.some(
+                    ([moveRow, moveCol]) =>
+                        moveRow === targetRow &&
+                        moveCol === targetCol
+                );
+
+            if (attacking) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+};
+
 const generateSlidingMoves = (
     board,
     selected,
@@ -195,7 +310,8 @@ const generateKnightMoves = (
 
 const generateKingMoves = (
     board,
-    selected
+    selected,
+    castleState
 ) => {
 
     const curRow = selected[0];
@@ -240,6 +356,169 @@ const generateKingMoves = (
 
         if (append_flag) {
             possibleMoves.push([row, col]);
+        }
+    }
+
+    const enemyColor =
+        movingPieceColor === 'white'
+            ? 'black'
+            : 'white';
+
+    if (
+        movingPieceColor === 'white' &&
+        curRow === 7 &&
+        curCol === 4 &&
+        !castleState.whiteKingMoved
+    ) {
+
+        // =========================
+        // KING SIDE
+        // =========================
+
+        if (
+            !castleState.whiteRightRookMoved &&
+            board[7][7] === 'wr' &&
+            board[7][5] === '' &&
+            board[7][6] === ''
+        ) {
+
+            const safe =
+                !isSquareUnderAttack(
+                    board,
+                    7,
+                    4,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    7,
+                    5,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    7,
+                    6,
+                    enemyColor
+                );
+
+            if (safe) {
+                possibleMoves.push([7, 6]);
+            }
+        }
+
+        // =========================
+        // QUEEN SIDE
+        // =========================
+
+        if (
+            !castleState.whiteLeftRookMoved &&
+            board[7][0] === 'wr' &&
+            board[7][1] === '' &&
+            board[7][2] === '' &&
+            board[7][3] === ''
+        ) {
+
+            const safe =
+                !isSquareUnderAttack(
+                    board,
+                    7,
+                    4,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    7,
+                    3,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    7,
+                    2,
+                    enemyColor
+                );
+
+            if (safe) {
+                possibleMoves.push([7, 2]);
+            }
+        }
+    }
+
+    if (
+        movingPieceColor === 'black' &&
+        curRow === 0 &&
+        curCol === 4 &&
+        !castleState.blackKingMoved
+    ) {
+
+        // king side
+
+        if (
+            !castleState.blackRightRookMoved &&
+            board[0][7] === 'br' &&
+            board[0][5] === '' &&
+            board[0][6] === ''
+        ) {
+
+            const safe =
+                !isSquareUnderAttack(
+                    board,
+                    0,
+                    4,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    0,
+                    5,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    0,
+                    6,
+                    enemyColor
+                );
+
+            if (safe) {
+                possibleMoves.push([0, 6]);
+            }
+        }
+
+        // queen side
+
+        if (
+            !castleState.blackLeftRookMoved &&
+            board[0][0] === 'br' &&
+            board[0][1] === '' &&
+            board[0][2] === '' &&
+            board[0][3] === ''
+        ) {
+
+            const safe =
+                !isSquareUnderAttack(
+                    board,
+                    0,
+                    4,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    0,
+                    3,
+                    enemyColor
+                ) &&
+                !isSquareUnderAttack(
+                    board,
+                    0,
+                    2,
+                    enemyColor
+                );
+
+            if (safe) {
+                possibleMoves.push([0, 2]);
+            }
         }
     }
 
@@ -406,6 +685,7 @@ export const isMoveValid = (
     row,
     col,
     enPassantState,
+    castleState,
     moveCount
 ) => {
 
@@ -461,7 +741,8 @@ export const isMoveValid = (
             possibleMoves =
                 generateKingMoves(
                     board,
-                    selected
+                    selected,
+                    castleState
                 );
             break;
 

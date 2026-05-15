@@ -18,6 +18,17 @@ const Chess = () => {
         ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
     ]);
 
+    const [castleState, setCastleState] = useState({
+        whiteKingMoved: false,
+        blackKingMoved: false,
+
+        whiteLeftRookMoved: false,
+        whiteRightRookMoved: false,
+
+        blackLeftRookMoved: false,
+        blackRightRookMoved: false
+    });
+
     const [turn, setTurn] =
         useState("white");
 
@@ -42,6 +53,7 @@ const Chess = () => {
                     row,
                     col,
                     enPassantState,
+                    castleState,
                     moveCount
                 );
 
@@ -54,6 +66,134 @@ const Chess = () => {
 
                 const movingPiece =
                     board[selected[0]][selected[1]];
+
+                // =========================
+                // UPDATE CASTLING STATE
+                // =========================
+
+                if (movingPiece === 'wk' && !castleState["whiteKingMoved"]) {
+
+                    setCastleState(prev => ({
+                        ...prev,
+                        whiteKingMoved: true
+                    }));
+                }
+
+                if (movingPiece === 'bk' && !castleState["blackKingMoved"]) {
+
+                    setCastleState(prev => ({
+                        ...prev,
+                        blackKingMoved: true
+                    }));
+                }
+
+                // white rooks
+
+                if (
+                    movingPiece === 'wr' &&
+                    selected[0] === 7 &&
+                    selected[1] === 0
+                ) {
+
+                    setCastleState(prev => ({
+                        ...prev,
+                        whiteLeftRookMoved: true
+                    }));
+                }
+
+                if (
+                    movingPiece === 'wr' &&
+                    selected[0] === 7 &&
+                    selected[1] === 7
+                ) {
+
+                    setCastleState(prev => ({
+                        ...prev,
+                        whiteRightRookMoved: true
+                    }));
+                }
+
+                // black rooks
+
+                if (
+                    movingPiece === 'br' &&
+                    selected[0] === 0 &&
+                    selected[1] === 0
+                ) {
+
+                    setCastleState(prev => ({
+                        ...prev,
+                        blackLeftRookMoved: true
+                    }));
+                }
+
+                if (
+                    movingPiece === 'br' &&
+                    selected[0] === 0 &&
+                    selected[1] === 7
+                ) {
+
+                    setCastleState(prev => ({
+                        ...prev,
+                        blackRightRookMoved: true
+                    }));
+                }
+
+                // =========================
+                // CASTLING ROOK MOVEMENT
+                // =========================
+
+                // white king side
+                if (
+                    movingPiece === 'wk' &&
+                    selected[0] === 7 &&
+                    selected[1] === 4 &&
+                    row === 7 &&
+                    col === 6
+                ) {
+
+                    boardClone[7][5] = 'wr';
+                    boardClone[7][7] = '';
+                }
+
+                // white queen side
+                if (
+                    movingPiece === 'wk' &&
+                    selected[0] === 7 &&
+                    selected[1] === 4 &&
+                    row === 7 &&
+                    col === 2
+                ) {
+
+                    boardClone[7][3] = 'wr';
+                    boardClone[7][0] = '';
+                }
+
+                // black king side
+                if (
+                    movingPiece === 'bk' &&
+                    selected[0] === 0 &&
+                    selected[1] === 4 &&
+                    row === 0 &&
+                    col === 6
+                ) {
+
+                    boardClone[0][5] = 'br';
+                    boardClone[0][7] = '';
+                }
+
+                // black queen side
+                if (
+                    movingPiece === 'bk' &&
+                    selected[0] === 0 &&
+                    selected[1] === 4 &&
+                    row === 0 &&
+                    col === 2
+                ) {
+
+                    boardClone[0][3] = 'br';
+                    boardClone[0][0] = '';
+                }
 
                 // =========================
                 // EN PASSANT CAPTURE
