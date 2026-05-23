@@ -145,6 +145,63 @@ const isSquareUnderAttack = (
     return false;
 };
 
+const findPlayerKingPosition = (
+    board,
+    pieceColorCode
+) => {
+
+    for (let row = 0; row < 8; row++) {
+
+        for (let col = 0; col < 8; col++) {
+
+            const piece =
+                board[row][col];
+
+            if (
+                piece !== '' &&
+                piece[0] === pieceColorCode &&
+                piece[1] === 'k'
+            ) {
+
+                return [row, col];
+            }
+        }
+    }
+
+    return null;
+};
+
+export const wouldKingBeInCheckAfterMove = (
+    board,
+    turn
+) => {
+    const pieceColorCode = turn === "white" ? "w" : "b";
+
+    // Find king position
+    const kingPosition =
+        findPlayerKingPosition(
+            board,
+            pieceColorCode
+        );
+
+    if (!kingPosition) {
+        return false;
+    }
+
+    const enemyColor =
+        pieceColorCode === 'w'
+            ? 'black'
+            : 'white';
+
+    // Check if king is attacked
+    return isSquareUnderAttack(
+        board,
+        kingPosition[0],
+        kingPosition[1],
+        enemyColor
+    );
+};
+
 const generateSlidingMoves = (
     board,
     selected,

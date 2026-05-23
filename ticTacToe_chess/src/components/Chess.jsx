@@ -2,7 +2,8 @@ import { useState } from 'react';
 import ChessBoard from './ChessBoard';
 
 import {
-    isMoveValid
+    isMoveValid,
+    wouldKingBeInCheckAfterMove
 } from './moveValidCheck';
 
 const Chess = () => {
@@ -64,6 +65,14 @@ const Chess = () => {
                         (boardRow) => [...boardRow]
                     );
 
+                // =========================
+                // CLONE CASTLE STATE
+                // =========================
+
+                const newCastleState = {
+                    ...castleState
+                };
+
                 const movingPiece =
                     board[selected[0]][selected[1]];
 
@@ -71,20 +80,12 @@ const Chess = () => {
                 // UPDATE CASTLING STATE
                 // =========================
 
-                if (movingPiece === 'wk' && !castleState["whiteKingMoved"]) {
-
-                    setCastleState(prev => ({
-                        ...prev,
-                        whiteKingMoved: true
-                    }));
+                if (movingPiece === 'wk') {
+                    newCastleState.whiteKingMoved = true;
                 }
 
-                if (movingPiece === 'bk' && !castleState["blackKingMoved"]) {
-
-                    setCastleState(prev => ({
-                        ...prev,
-                        blackKingMoved: true
-                    }));
+                if (movingPiece === 'bk') {
+                    newCastleState.blackKingMoved = true;
                 }
 
                 // white rooks
@@ -95,10 +96,7 @@ const Chess = () => {
                     selected[1] === 0
                 ) {
 
-                    setCastleState(prev => ({
-                        ...prev,
-                        whiteLeftRookMoved: true
-                    }));
+                    newCastleState.whiteLeftRookMoved = true;
                 }
 
                 if (
@@ -107,10 +105,7 @@ const Chess = () => {
                     selected[1] === 7
                 ) {
 
-                    setCastleState(prev => ({
-                        ...prev,
-                        whiteRightRookMoved: true
-                    }));
+                    newCastleState.whiteRightRookMoved = true;
                 }
 
                 // black rooks
@@ -121,10 +116,7 @@ const Chess = () => {
                     selected[1] === 0
                 ) {
 
-                    setCastleState(prev => ({
-                        ...prev,
-                        blackLeftRookMoved: true
-                    }));
+                    newCastleState.blackLeftRookMoved = true;
                 }
 
                 if (
@@ -133,10 +125,7 @@ const Chess = () => {
                     selected[1] === 7
                 ) {
 
-                    setCastleState(prev => ({
-                        ...prev,
-                        blackRightRookMoved: true
-                    }));
+                    newCastleState.blackRightRookMoved = true;
                 }
 
                 // =========================
@@ -144,6 +133,7 @@ const Chess = () => {
                 // =========================
 
                 // white king side
+
                 if (
                     movingPiece === 'wk' &&
                     selected[0] === 7 &&
@@ -157,6 +147,7 @@ const Chess = () => {
                 }
 
                 // white queen side
+
                 if (
                     movingPiece === 'wk' &&
                     selected[0] === 7 &&
@@ -170,6 +161,7 @@ const Chess = () => {
                 }
 
                 // black king side
+
                 if (
                     movingPiece === 'bk' &&
                     selected[0] === 0 &&
@@ -183,6 +175,7 @@ const Chess = () => {
                 }
 
                 // black queen side
+
                 if (
                     movingPiece === 'bk' &&
                     selected[0] === 0 &&
@@ -223,7 +216,28 @@ const Chess = () => {
                 boardClone[selected[0]][selected[1]] =
                     '';
 
+                // =========================
+                // KING SAFETY CHECK
+                // =========================
+
+                if (
+                    wouldKingBeInCheckAfterMove(
+                        boardClone,
+                        turn
+                    )
+                ) {
+
+                    setSelected(null);
+                    return;
+                }
+
+                // =========================
+                // COMMIT STATE
+                // =========================
+
                 setBoard(boardClone);
+
+                setCastleState(newCastleState);
 
                 // =========================
                 // EN PASSANT ENABLE
