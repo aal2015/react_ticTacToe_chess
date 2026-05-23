@@ -3,7 +3,8 @@ import ChessBoard from './ChessBoard';
 
 import {
     isMoveValid,
-    wouldKingBeInCheckAfterMove
+    wouldKingBeInCheckAfterMove,
+    isCheckMate
 } from './moveValidCheck';
 
 const Chess = () => {
@@ -243,21 +244,37 @@ const Chess = () => {
                 // EN PASSANT ENABLE
                 // =========================
 
+                let nextEnPassantState = null;
+
                 if (
                     movingPiece[1] === 'p' &&
                     Math.abs(row - selected[0]) === 2
                 ) {
-
-                    setEnPassantState({
+                    nextEnPassantState = {
                         row,
                         col,
                         pieceColor: turn,
                         moveCount
-                    });
+                    };
+                    // setEnPassantState({
+                    //     row,
+                    //     col,
+                    //     pieceColor: turn,
+                    //     moveCount
+                    // });
 
                 } else {
-
-                    setEnPassantState(null);
+                    nextEnPassantState = null;
+                    // setEnPassantState(null);
+                }
+                
+                setEnPassantState(nextEnPassantState);
+                // =========================
+                // Check if Checkmate
+                // =========================
+                const enemyColor = turn === "white"? "black": "white";
+                if (isCheckMate(boardClone, enemyColor, nextEnPassantState, moveCount + 1)) {
+                    console.log("Checkmate!!");
                 }
 
                 // =========================

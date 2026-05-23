@@ -735,6 +735,113 @@ const generatePawnMoves = (
     return possibleMoves;
 };
 
+export const isCheckMate = (
+    board,
+    color,
+    enPassantState,
+    moveCount
+) => {
+
+    const pieceColorCode =
+        color === "white"
+            ? "w"
+            : "b";
+
+    const enemyColor =
+        color === "white"
+            ? "black"
+            : "white";
+
+    // Find king
+
+    const kingPosition =
+        findPlayerKingPosition(
+            board,
+            pieceColorCode
+        );
+
+    // King missing
+
+    if (!kingPosition) {
+        return false;
+    }
+
+    // Is king currently checked?
+
+    const underAttack =
+        isSquareUnderAttack(
+            board,
+            kingPosition[0],
+            kingPosition[1],
+            enemyColor
+        );
+
+    if (!underAttack) {
+        return false;
+    }
+
+    // Disable castling
+
+    const castleState = {
+        whiteKingMoved: true,
+        blackKingMoved: true,
+
+        whiteLeftRookMoved: true,
+        whiteRightRookMoved: true,
+
+        blackLeftRookMoved: true,
+        blackRightRookMoved: true
+    };
+
+    // Generate king moves
+
+    const possibleMoves =
+        generateKingMoves(
+            board,
+            kingPosition,
+            castleState
+        );
+
+    // Test every king move
+
+    for (const [row, col] of possibleMoves) {
+
+        const boardClone =
+            board.map(
+                boardRow => [...boardRow]
+            );
+
+        // simulate king move
+
+        boardClone[row][col] =
+            boardClone[
+                kingPosition[0]
+            ][
+                kingPosition[1]
+            ];
+
+        boardClone[
+            kingPosition[0]
+        ][
+            kingPosition[1]
+        ] = '';
+
+        // if king survives
+
+        if (
+            !wouldKingBeInCheckAfterMove(
+                boardClone,
+                color
+            )
+        ) {
+
+            return false;
+        }
+    }
+
+    return true;
+};
+
 export const isMoveValid = (
     board,
     selected,
