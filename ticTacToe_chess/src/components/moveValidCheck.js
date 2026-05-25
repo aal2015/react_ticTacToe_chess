@@ -815,9 +815,9 @@ export const isCheckMate = (
 
         boardClone[row][col] =
             boardClone[
-                kingPosition[0]
+            kingPosition[0]
             ][
-                kingPosition[1]
+            kingPosition[1]
             ];
 
         boardClone[
@@ -836,6 +836,124 @@ export const isCheckMate = (
         ) {
 
             return false;
+        }
+    }
+
+
+    // Check if another piece can save the king
+
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const piece = board[row][col];
+
+            // friendly non-king piece
+
+            if (
+                piece !== '' &&
+                piece[0] === pieceColorCode &&
+                piece[1] !== 'k'
+            ) {
+
+                const selected = [row, col];
+
+                let possibleMoves = [];
+
+                const pieceType = piece[1];
+
+                switch (pieceType) {
+
+                    case 'r':
+                        possibleMoves =
+                            generateRookMoves(
+                                board,
+                                selected
+                            );
+                        break;
+
+                    case 'b':
+                        possibleMoves =
+                            generateBishopMoves(
+                                board,
+                                selected
+                            );
+                        break;
+
+                    case 'q':
+                        possibleMoves =
+                            generateQueenMoves(
+                                board,
+                                selected
+                            );
+                        break;
+
+                    case 'n':
+                        possibleMoves =
+                            generateKnightMoves(
+                                board,
+                                selected
+                            );
+                        break;
+
+                    case 'p':
+                        possibleMoves =
+                            generatePawnMoves(
+                                board,
+                                selected,
+                                color,
+                                enPassantState,
+                                moveCount
+                            );
+                        break;
+                }
+
+                // Try every move
+
+                for (const [moveRow, moveCol] of possibleMoves) {
+
+                    const boardClone =
+                        board.map(
+                            boardRow => [...boardRow]
+                        );
+
+                    // EN PASSANT CAPTURE
+
+                    if (
+                        pieceType === 'p' &&
+                        moveCol !== col &&
+                        board[moveRow][moveCol] === ''
+                    ) {
+
+                        const capturedPawnRow =
+                            color === 'white'
+                                ? moveRow + 1
+                                : moveRow - 1;
+
+                        boardClone[
+                            capturedPawnRow
+                        ][
+                            moveCol
+                        ] = '';
+                    }
+
+                    // simulate move
+
+                    boardClone[moveRow][moveCol] =
+                        piece;
+                    boardClone[row][col] = '';
+
+                    // if check removed
+
+                    if (
+                        !wouldKingBeInCheckAfterMove(
+                            boardClone,
+                            color
+                        )
+                    ) {
+
+                        return false;
+                    }
+                }
+            }
         }
     }
 
