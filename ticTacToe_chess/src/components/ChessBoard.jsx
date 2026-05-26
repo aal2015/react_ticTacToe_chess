@@ -27,25 +27,85 @@ const pieceIcons = {
     bk: faChessKing
 };
 
-const ChessBoard = ({ boardState, onPieceSelect, activeSelect }) => {
-    
+const ChessBoard = ({
+    boardState,
+    onPieceSelect,
+    activeSelect,
+    playerColor
+}) => {
+
+    // =========================
+    // DISPLAY -> REAL COORDS
+    // =========================
+
+    const getActualRow = (displayRow) => {
+
+        return playerColor === 'white'
+            ? displayRow
+            : 7 - displayRow;
+    };
+
+    const getActualCol = (displayCol) => {
+
+        return playerColor === 'white'
+            ? displayCol
+            : 7 - displayCol;
+    };
+
     return (
         <div id="chessGameBoard">
-            {boardState.map((row, rowIndex) =>
-                row.map((cell, cellIndex) => {
+
+            {[...Array(8)].map((_, displayRow) =>
+
+                [...Array(8)].map((_, displayCol) => {
+
+                    // =========================
+                    // REAL BOARD COORDS
+                    // =========================
+
+                    const rowIndex =
+                        getActualRow(displayRow);
+
+                    const cellIndex =
+                        getActualCol(displayCol);
+
+                    const cell =
+                        boardState[rowIndex][cellIndex];
+
+                    // =========================
+                    // BOARD COLORS
+                    // =========================
+
                     const isWhiteSquare =
-                        (rowIndex + cellIndex) % 2 === 0;
+                        (displayRow + displayCol) % 2 === 0;
+
+                    // =========================
+                    // ACTIVE SELECTION
+                    // =========================
+
+                    const isSelected =
+                        activeSelect &&
+                        rowIndex === activeSelect[0] &&
+                        cellIndex === activeSelect[1];
 
                     return (
                         <div
-                            key={`${rowIndex}-${cellIndex}`}
+                            key={`${displayRow}-${displayCol}`}
                             className={`
-                                square 
-                                ${isWhiteSquare ? 'whiteSquare' : 'darkBlue'}
-                                ${activeSelect && rowIndex === activeSelect[0] && cellIndex === activeSelect[1] ? 'activeSelect' : ''}
-                                `}
-
-                            onClick={() => onPieceSelect(rowIndex, cellIndex)}
+                                square
+                                ${isWhiteSquare
+                                    ? 'whiteSquare'
+                                    : 'darkBlue'}
+                                ${isSelected
+                                    ? 'activeSelect'
+                                    : ''}
+                            `}
+                            onClick={() =>
+                                onPieceSelect(
+                                    rowIndex,
+                                    cellIndex
+                                )
+                            }
                         >
                             {cell && (
                                 <FontAwesomeIcon

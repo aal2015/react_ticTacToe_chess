@@ -43,6 +43,9 @@ const Chess = () => {
     const [enPassantState, setEnPassantState] =
         useState(null);
 
+    const [playerColor, setPlayerColor] =
+        useState("black");
+
     const pieceSelect = (row, col) => {
 
         if (selected) {
@@ -267,12 +270,12 @@ const Chess = () => {
                     nextEnPassantState = null;
                     // setEnPassantState(null);
                 }
-                
+
                 setEnPassantState(nextEnPassantState);
                 // =========================
                 // Check if Checkmate
                 // =========================
-                const enemyColor = turn === "white"? "black": "white";
+                const enemyColor = turn === "white" ? "black" : "white";
                 if (isCheckMate(boardClone, enemyColor, nextEnPassantState, moveCount + 1)) {
                     console.log("Checkmate!!");
                 }
@@ -316,6 +319,7 @@ const Chess = () => {
                 boardState={board}
                 onPieceSelect={pieceSelect}
                 activeSelect={selected}
+                playerColor={playerColor}
             />
         </>
     );
