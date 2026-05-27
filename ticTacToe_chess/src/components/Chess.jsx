@@ -44,7 +44,7 @@ const Chess = () => {
         useState(null);
 
     const [playerColor, setPlayerColor] =
-        useState("black");
+        useState("white");
 
     const pieceSelect = (row, col) => {
 
@@ -306,22 +306,188 @@ const Chess = () => {
     };
 
     return (
-        <>
-            <p>
-                {
-                    turn === 'white'
-                        ? 'White Turn'
-                        : 'Black Turn'
-                }
-            </p>
+        <div
+            className="
+            max-w-7xl
+            mx-auto
+            p-4
+            grid
+            grid-cols-1
+            lg:grid-cols-[1fr_320px]
+            gap-6
+            items-start
+        "
+        >
 
-            <ChessBoard
-                boardState={board}
-                onPieceSelect={pieceSelect}
-                activeSelect={selected}
-                playerColor={playerColor}
-            />
-        </>
+            {/* =========================
+            LEFT SIDE
+        ========================= */}
+
+            <div
+                className="
+                flex
+                flex-col
+                items-center
+                gap-4
+            "
+            >
+
+                <p
+                    className="
+                    text-2xl
+                    font-bold
+                "
+                >
+                    {
+                        turn === 'white'
+                            ? 'White Turn'
+                            : 'Black Turn'
+                    }
+                </p>
+
+                <ChessBoard
+                    boardState={board}
+                    onPieceSelect={pieceSelect}
+                    activeSelect={selected}
+                    playerColor={playerColor}
+                />
+
+            </div>
+
+            {/* =========================
+            RIGHT SIDE
+        ========================= */}
+
+            <div
+                className="
+                flex
+                flex-col
+                gap-5
+                lg:sticky
+                lg:top-5
+            "
+            >
+
+                {/* MOVE HISTORY */}
+
+                <div
+                    className="
+                    bg-slate-800
+                    text-white
+                    rounded-xl
+                    p-4
+                    shadow-lg
+                "
+                >
+
+                    <h2
+                        className="
+                        text-xl
+                        font-bold
+                        mb-3
+                    "
+                    >
+                        Move History
+                    </h2>
+
+                    <div
+                        className="
+                        flex
+                        flex-col
+                        gap-2
+                        max-h-[300px]
+                        overflow-y-auto
+                    "
+                    >
+                        <p>1. e4</p>
+                        <p>1... e5</p>
+                        <p>2. Nf3</p>
+                    </div>
+
+                </div>
+
+                {/* CAPTURED PIECES */}
+
+                <div
+                    className="
+                    bg-slate-800
+                    text-white
+                    rounded-xl
+                    p-4
+                    shadow-lg
+                "
+                >
+
+                    <h2
+                        className="
+                        text-xl
+                        font-bold
+                        mb-3
+                    "
+                    >
+                        Captured Pieces
+                    </h2>
+
+                    <div
+                        className="
+                        flex
+                        flex-wrap
+                        gap-2
+                    "
+                    >
+                        <span>♟</span>
+                        <span>♞</span>
+                        <span>♝</span>
+                    </div>
+
+                </div>
+
+                {/* BUTTONS */}
+
+                <div
+                    className="
+                    bg-slate-800
+                    text-white
+                    rounded-xl
+                    p-4
+                    shadow-lg
+                    flex
+                    flex-col
+                    gap-3
+                "
+                >
+
+                    <button
+                        className="
+                        bg-blue-600
+                        hover:bg-blue-700
+                        transition
+                        rounded-lg
+                        py-3
+                        font-semibold
+                    "
+                    >
+                        Play Again
+                    </button>
+
+                    <button
+                        className="
+                        bg-red-600
+                        hover:bg-red-700
+                        transition
+                        rounded-lg
+                        py-3
+                        font-semibold
+                    "
+                    >
+                        Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
     );
 };
 
