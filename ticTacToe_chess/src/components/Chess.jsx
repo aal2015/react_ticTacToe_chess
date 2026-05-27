@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ChessBoard from './ChessBoard';
+import ChessSideBar from './ChessSideBar';
 
 import {
     isMoveValid,
@@ -367,124 +368,7 @@ const Chess = () => {
                 lg:top-5
             "
             >
-
-                {/* MOVE HISTORY */}
-
-                <div
-                    className="
-                    bg-slate-800
-                    text-white
-                    rounded-xl
-                    p-4
-                    shadow-lg
-                "
-                >
-
-                    <h2
-                        className="
-                        text-xl
-                        font-bold
-                        mb-3
-                    "
-                    >
-                        Move History
-                    </h2>
-
-                    <div
-                        className="
-                        flex
-                        flex-col
-                        gap-2
-                        max-h-[300px]
-                        overflow-y-auto
-                    "
-                    >
-                        <p>1. e4</p>
-                        <p>1... e5</p>
-                        <p>2. Nf3</p>
-                    </div>
-
-                </div>
-
-                {/* CAPTURED PIECES */}
-
-                <div
-                    className="
-                    bg-slate-800
-                    text-white
-                    rounded-xl
-                    p-4
-                    shadow-lg
-                "
-                >
-
-                    <h2
-                        className="
-                        text-xl
-                        font-bold
-                        mb-3
-                    "
-                    >
-                        Captured Pieces
-                    </h2>
-
-                    <div
-                        className="
-                        flex
-                        flex-wrap
-                        gap-2
-                    "
-                    >
-                        <span>♟</span>
-                        <span>♞</span>
-                        <span>♝</span>
-                    </div>
-
-                </div>
-
-                {/* BUTTONS */}
-
-                <div
-                    className="
-                    bg-slate-800
-                    text-white
-                    rounded-xl
-                    p-4
-                    shadow-lg
-                    flex
-                    flex-col
-                    gap-3
-                "
-                >
-
-                    <button
-                        className="
-                        bg-blue-600
-                        hover:bg-blue-700
-                        transition
-                        rounded-lg
-                        py-3
-                        font-semibold
-                    "
-                    >
-                        Play Again
-                    </button>
-
-                    <button
-                        className="
-                        bg-red-600
-                        hover:bg-red-700
-                        transition
-                        rounded-lg
-                        py-3
-                        font-semibold
-                    "
-                    >
-                        Reset
-                    </button>
-
-                </div>
-
+                <ChessSideBar />
             </div>
 
         </div>

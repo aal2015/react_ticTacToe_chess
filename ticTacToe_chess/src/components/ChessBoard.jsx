@@ -52,75 +52,163 @@ const ChessBoard = ({
             : 7 - displayCol;
     };
 
+    // =========================
+    // BOARD LABELS
+    // =========================
+
+    const files =
+        playerColor === 'white'
+            ? ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+            : ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'];
+
+    const ranks =
+        playerColor === 'white'
+            ? [8, 7, 6, 5, 4, 3, 2, 1]
+            : [1, 2, 3, 4, 5, 6, 7, 8];
+
     return (
-        <div id="chessGameBoard">
 
-            {[...Array(8)].map((_, displayRow) =>
+        <div className="flex flex-col items-center">
 
-                [...Array(8)].map((_, displayCol) => {
+            {/* =========================
+                BOARD + RANK LABELS
+            ========================= */}
 
-                    // =========================
-                    // REAL BOARD COORDS
-                    // =========================
+            <div className="flex">
 
-                    const rowIndex =
-                        getActualRow(displayRow);
+                {/* =========================
+                    RANK LABELS
+                ========================= */}
 
-                    const cellIndex =
-                        getActualCol(displayCol);
+                <div className="flex flex-col">
 
-                    const cell =
-                        boardState[rowIndex][cellIndex];
+                    {ranks.map((rank) => (
 
-                    // =========================
-                    // BOARD COLORS
-                    // =========================
-
-                    const isWhiteSquare =
-                        (displayRow + displayCol) % 2 === 0;
-
-                    // =========================
-                    // ACTIVE SELECTION
-                    // =========================
-
-                    const isSelected =
-                        activeSelect &&
-                        rowIndex === activeSelect[0] &&
-                        cellIndex === activeSelect[1];
-
-                    return (
                         <div
-                            key={`${displayRow}-${displayCol}`}
-                            className={`
-                                square
-                                ${isWhiteSquare
-                                    ? 'whiteSquare'
-                                    : 'darkBlue'}
-                                ${isSelected
-                                    ? 'activeSelect'
-                                    : ''}
-                            `}
-                            onClick={() =>
-                                onPieceSelect(
-                                    rowIndex,
-                                    cellIndex
-                                )
-                            }
+                            key={rank}
+                            className="
+                                h-[60px]
+                                w-[30px]
+                                flex
+                                items-center
+                                justify-center
+                                text-2xl
+                                font-bold
+                                text-white
+                            "
                         >
-                            {cell && (
-                                <FontAwesomeIcon
-                                    icon={pieceIcons[cell]}
-                                    className={
-                                        cell.startsWith('b')
-                                            ? 'blackPiece'
-                                            : 'whitePiece'
-                                    }
-                                />
-                            )}
+                            {rank}
                         </div>
-                    );
-                })
-            )}
+
+                    ))}
+
+                </div>
+
+                {/* =========================
+                    CHESS BOARD
+                ========================= */}
+
+                <div id="chessGameBoard">
+
+                    {[...Array(8)].map((_, displayRow) =>
+
+                        [...Array(8)].map((_, displayCol) => {
+
+                            // =========================
+                            // REAL BOARD COORDS
+                            // =========================
+
+                            const rowIndex =
+                                getActualRow(displayRow);
+
+                            const cellIndex =
+                                getActualCol(displayCol);
+
+                            const cell =
+                                boardState[rowIndex][cellIndex];
+
+                            // =========================
+                            // BOARD COLORS
+                            // =========================
+
+                            const isWhiteSquare =
+                                (displayRow + displayCol) % 2 === 0;
+
+                            // =========================
+                            // ACTIVE SELECTION
+                            // =========================
+
+                            const isSelected =
+                                activeSelect &&
+                                rowIndex === activeSelect[0] &&
+                                cellIndex === activeSelect[1];
+
+                            return (
+                                <div
+                                    key={`${displayRow}-${displayCol}`}
+                                    className={`
+                                        square
+                                        ${isWhiteSquare
+                                            ? 'whiteSquare'
+                                            : 'darkBlue'}
+                                        ${isSelected
+                                            ? 'activeSelect'
+                                            : ''}
+                                    `}
+                                    onClick={() =>
+                                        onPieceSelect(
+                                            rowIndex,
+                                            cellIndex
+                                        )
+                                    }
+                                >
+                                    {cell && (
+                                        <FontAwesomeIcon
+                                            icon={pieceIcons[cell]}
+                                            className={
+                                                cell.startsWith('b')
+                                                    ? 'blackPiece'
+                                                    : 'whitePiece'
+                                            }
+                                        />
+                                    )}
+                                </div>
+                            );
+                        })
+                    )}
+
+                </div>
+
+            </div>
+
+            {/* =========================
+                FILE LABELS
+            ========================= */}
+
+            <div className="flex ml-[30px]">
+
+                {files.map((file) => (
+
+                    <div
+                        key={file}
+                        className="
+                            w-[60px]
+                            h-[30px]
+                            flex
+                            items-center
+                            justify-center
+                            text-2xl
+                            font-bold
+                            text-white
+                        "
+                    >
+                        {file}
+                    </div>
+
+                ))}
+
+            </div>
+
         </div>
     );
 };
