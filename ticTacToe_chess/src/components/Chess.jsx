@@ -47,6 +47,114 @@ const Chess = () => {
     const [playerColor, setPlayerColor] =
         useState("white");
 
+    const [moveHistory, setMoveHistory] =
+        useState([]);
+
+    const generateMoveNotation = ({
+        movingPiece,
+        selected,
+        row,
+        col,
+        board,
+        isCapture,
+        isCastleKingSide,
+        isCastleQueenSide,
+        isCheck,
+        isCheckMate,
+        isEnPassant
+    }) => {
+
+        // =========================
+        // CASTLING
+        // =========================
+
+        if (isCastleKingSide) {
+
+            return isCheckMate
+                ? 'O-O#'
+                : isCheck
+                    ? 'O-O+'
+                    : 'O-O';
+        }
+
+        if (isCastleQueenSide) {
+
+            return isCheckMate
+                ? 'O-O-O#'
+                : isCheck
+                    ? 'O-O-O+'
+                    : 'O-O-O';
+        }
+
+        const pieceType =
+            movingPiece[1];
+
+        const pieceLetter =
+            pieceNotation[pieceType];
+
+        const files =
+            ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+        const targetSquare =
+            `${files[col]}${8 - row}`;
+
+        let notation = '';
+
+        // =========================
+        // PAWN MOVES
+        // =========================
+
+        if (pieceType === 'p') {
+
+            // captures
+
+            if (isCapture || isEnPassant) {
+
+                notation =
+                    `${files[selected[1]]}x${targetSquare}`;
+
+            } else {
+
+                notation = targetSquare;
+            }
+
+        } else {
+
+            notation = pieceLetter;
+
+            if (isCapture) {
+
+                notation += 'x';
+            }
+
+            notation += targetSquare;
+        }
+
+        // =========================
+        // CHECK / CHECKMATE
+        // =========================
+
+        if (isCheckMate) {
+
+            notation += '#';
+
+        } else if (isCheck) {
+
+            notation += '+';
+        }
+
+        return notation;
+    };
+
+    const pieceNotation = {
+        p: '',
+        r: 'R',
+        n: 'N',
+        b: 'B',
+        q: 'Q',
+        k: 'K'
+    };
+
     const pieceSelect = (row, col) => {
 
         if (selected) {
@@ -82,14 +190,32 @@ const Chess = () => {
                     board[selected[0]][selected[1]];
 
                 // =========================
+                // MOVE FLAGS
+                // =========================
+
+                let isCastleKingSide = false;
+
+                let isCastleQueenSide = false;
+
+                const isCapture =
+                    board[row][col] !== '';
+
+                const isEnPassant =
+                    movingPiece[1] === 'p' &&
+                    col !== selected[1] &&
+                    board[row][col] === '';
+
+                // =========================
                 // UPDATE CASTLING STATE
                 // =========================
 
                 if (movingPiece === 'wk') {
+
                     newCastleState.whiteKingMoved = true;
                 }
 
                 if (movingPiece === 'bk') {
+
                     newCastleState.blackKingMoved = true;
                 }
 
@@ -134,7 +260,7 @@ const Chess = () => {
                 }
 
                 // =========================
-                // CASTLING ROOK MOVEMENT
+                // CASTLING MOVEMENT
                 // =========================
 
                 // white king side
@@ -149,6 +275,8 @@ const Chess = () => {
 
                     boardClone[7][5] = 'wr';
                     boardClone[7][7] = '';
+
+                    isCastleKingSide = true;
                 }
 
                 // white queen side
@@ -163,6 +291,8 @@ const Chess = () => {
 
                     boardClone[7][3] = 'wr';
                     boardClone[7][0] = '';
+
+                    isCastleQueenSide = true;
                 }
 
                 // black king side
@@ -177,6 +307,8 @@ const Chess = () => {
 
                     boardClone[0][5] = 'br';
                     boardClone[0][7] = '';
+
+                    isCastleKingSide = true;
                 }
 
                 // black queen side
@@ -191,17 +323,15 @@ const Chess = () => {
 
                     boardClone[0][3] = 'br';
                     boardClone[0][0] = '';
+
+                    isCastleQueenSide = true;
                 }
 
                 // =========================
                 // EN PASSANT CAPTURE
                 // =========================
 
-                if (
-                    movingPiece[1] === 'p' &&
-                    col !== selected[1] &&
-                    board[row][col] === ''
-                ) {
+                if (isEnPassant) {
 
                     const capturedPawnRow =
                         turn === 'white'
@@ -215,11 +345,29 @@ const Chess = () => {
                 // MOVE PIECE
                 // =========================
 
-                boardClone[row][col] =
-                    movingPiece;
+                boardClone[row][col] = movingPiece;
 
-                boardClone[selected[0]][selected[1]] =
-                    '';
+                boardClone[selected[0]][selected[1]] = '';
+
+                // =========================
+                // EN PASSANT ENABLE
+                // =========================
+
+                let nextEnPassantState = null;
+
+                if (
+                    movingPiece[1] === 'p' &&
+                    Math.abs(row - selected[0]) === 2
+                ) {
+
+                    nextEnPassantState = {
+                        row,
+                        col,
+                        pieceColor: turn,
+                        moveCount
+                    };
+                }
+
 
                 // =========================
                 // KING SAFETY CHECK
@@ -237,6 +385,78 @@ const Chess = () => {
                 }
 
                 // =========================
+                // CHECK / CHECKMATE
+                // =========================
+
+                const enemyColor =
+                    turn === 'white'
+                        ? 'black'
+                        : 'white';
+
+                const checkState =
+                    wouldKingBeInCheckAfterMove(
+                        boardClone,
+                        enemyColor
+                    );
+
+                const checkMateState =
+                    isCheckMate(
+                        boardClone,
+                        enemyColor,
+                        nextEnPassantState,
+                        moveCount + 1
+                    );
+
+                // =========================
+                // GENERATE NOTATION
+                // =========================
+
+                const notation =
+                    generateMoveNotation({
+                        movingPiece,
+                        selected,
+                        row,
+                        col,
+                        isCapture,
+                        isCastleKingSide,
+                        isCastleQueenSide,
+                        isCheck: checkState,
+                        isCheckMate: checkMateState,
+                        isEnPassant
+                    });
+
+                // =========================
+                // UPDATE MOVE HISTORY
+                // =========================
+
+                setMoveHistory((prev) => {
+
+                    const updatedHistory = [...prev];
+
+                    // white move
+
+                    if (turn === 'white') {
+
+                        updatedHistory.push({
+                            moveNumber:
+                                Math.floor(moveCount / 2) + 1,
+                            white: notation,
+                            black: ''
+                        });
+
+                    } else {
+
+                        // black move
+
+                        updatedHistory[
+                            updatedHistory.length - 1
+                        ].black = notation;
+                    }
+
+                    return updatedHistory;
+                });
+
+                // =========================
                 // COMMIT STATE
                 // =========================
 
@@ -244,40 +464,14 @@ const Chess = () => {
 
                 setCastleState(newCastleState);
 
-                // =========================
-                // EN PASSANT ENABLE
-                // =========================
-
-                let nextEnPassantState = null;
-
-                if (
-                    movingPiece[1] === 'p' &&
-                    Math.abs(row - selected[0]) === 2
-                ) {
-                    nextEnPassantState = {
-                        row,
-                        col,
-                        pieceColor: turn,
-                        moveCount
-                    };
-                    // setEnPassantState({
-                    //     row,
-                    //     col,
-                    //     pieceColor: turn,
-                    //     moveCount
-                    // });
-
-                } else {
-                    nextEnPassantState = null;
-                    // setEnPassantState(null);
-                }
-
                 setEnPassantState(nextEnPassantState);
+
                 // =========================
-                // Check if Checkmate
+                // CHECKMATE
                 // =========================
-                const enemyColor = turn === "white" ? "black" : "white";
-                if (isCheckMate(boardClone, enemyColor, nextEnPassantState, moveCount + 1)) {
+
+                if (checkMateState) {
+
                     console.log("Checkmate!!");
                 }
 
@@ -299,9 +493,18 @@ const Chess = () => {
             return;
         }
 
+        // =========================
+        // EMPTY SQUARE
+        // =========================
+
         if (board[row][col] === '') {
+
             return;
         }
+
+        // =========================
+        // SELECT PIECE
+        // =========================
 
         setSelected([row, col]);
     };
