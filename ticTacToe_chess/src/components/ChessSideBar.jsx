@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-const ChessSideBar = ({ moveHistory }) => {
+const ChessSideBar = ({ moveHistory, onReset }) => {
 
     const bottomRef = useRef(null);
 
@@ -56,6 +56,25 @@ const ChessSideBar = ({ moveHistory }) => {
                 ))}
 
                 <div ref={bottomRef} />
+            </div>
+
+            {/* Footer */}
+            <div
+                className="
+                        border-t
+                        p-3
+                        flex
+                        gap-2
+                        flex-shrink-0
+                    "
+            >
+                <button onClick={onReset}>
+                    Reset
+                </button>
+
+                <button>
+                    Export
+                </button>
             </div>
         </div>
     );

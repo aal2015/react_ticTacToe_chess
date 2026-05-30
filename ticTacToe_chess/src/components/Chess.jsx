@@ -45,10 +45,48 @@ const Chess = () => {
         useState(null);
 
     const [playerColor, setPlayerColor] =
-        useState("white");
+        useState("black");
 
     const [moveHistory, setMoveHistory] =
         useState([]);
+
+    const resetGame = () => {
+        console.log("Detected");
+
+        setBoard(
+            [
+                ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+                ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+                ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+            ]
+        );
+
+        setTurn("white");
+
+        setSelected(null);
+
+        setMoveCount(0);
+
+        setEnPassantState(null);
+
+        setMoveHistory([]);
+
+        setCastleState({
+            whiteKingMoved: false,
+            blackKingMoved: false,
+
+            whiteLeftRookMoved: false,
+            whiteRightRookMoved: false,
+
+            blackLeftRookMoved: false,
+            blackRightRookMoved: false
+        });
+    };
 
     const generateMoveNotation = ({
         movingPiece,
@@ -571,7 +609,10 @@ const Chess = () => {
                 lg:top-5
             "
             >
-                <ChessSideBar moveHistory={moveHistory} />
+                <ChessSideBar
+                    moveHistory={moveHistory}
+                    onReset={resetGame}
+                />
             </div>
 
         </div>
