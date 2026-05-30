@@ -571,7 +571,7 @@ const Chess = () => {
                 lg:top-5
             "
             >
-                <ChessSideBar />
+                <ChessSideBar moveHistory={moveHistory} />
             </div>
 
         </div>
