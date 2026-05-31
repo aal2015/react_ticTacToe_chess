@@ -8,6 +8,8 @@ import {
     isCheckMate
 } from './moveValidCheck';
 
+import PromotionModal from './PawnPromotionModal';
+
 const Chess = () => {
 
     const [board, setBoard] = useState([
@@ -45,7 +47,7 @@ const Chess = () => {
         useState(null);
 
     const [playerColor, setPlayerColor] =
-        useState("black");
+        useState("white");
 
     const [moveHistory, setMoveHistory] =
         useState([]);
@@ -88,18 +90,126 @@ const Chess = () => {
         });
     };
 
+    const [showPromotionModal, setShowPromotionModal] =
+        useState(false);
+
+    const [promotionData, setPromotionData] =
+        useState(null);
+
+    const handlePromotion = (promotedPiece) => {
+
+        const {
+            boardClone,
+            row,
+            col,
+            movingPiece,
+            selected,
+            newCastleState,
+            nextEnPassantState,
+            isCapture,
+            isEnPassant
+        } = promotionData;
+
+        const colorCode =
+            turn === 'white'
+                ? 'w'
+                : 'b';
+
+        boardClone[row][col] =
+            `${colorCode}${promotedPiece}`;
+
+        const enemyColor =
+            turn === 'white'
+                ? 'black'
+                : 'white';
+
+        const checkState =
+            wouldKingBeInCheckAfterMove(
+                boardClone,
+                enemyColor
+            );
+
+        const checkMateState =
+            isCheckMate(
+                boardClone,
+                enemyColor,
+                nextEnPassantState,
+                moveCount + 1
+            );
+
+        const notation =
+            generateMoveNotation({
+                movingPiece,
+                selected,
+                row,
+                col,
+                isCapture,
+                isEnPassant,
+                isCheck: checkState,
+                isCheckMate: checkMateState,
+                isPromotion: true,
+                promotedPiece
+            });
+
+        setMoveHistory(prev => {
+
+            const updatedHistory = [...prev];
+
+            if (turn === 'white') {
+
+                updatedHistory.push({
+                    moveNumber:
+                        Math.floor(moveCount / 2) + 1,
+                    white: notation,
+                    black: ''
+                });
+
+            } else {
+
+                updatedHistory[
+                    updatedHistory.length - 1
+                ].black = notation;
+            }
+
+            return updatedHistory;
+        });
+
+        setBoard(boardClone);
+
+        setCastleState(newCastleState);
+
+        setEnPassantState(
+            nextEnPassantState
+        );
+
+        setShowPromotionModal(false);
+
+        setPromotionData(null);
+
+        setTurn(
+            turn === 'white'
+                ? 'black'
+                : 'white'
+        );
+
+        setMoveCount(
+            prev => prev + 1
+        );
+    };
+
     const generateMoveNotation = ({
         movingPiece,
         selected,
         row,
         col,
-        board,
         isCapture,
         isCastleKingSide,
         isCastleQueenSide,
         isCheck,
         isCheckMate,
-        isEnPassant
+        isEnPassant,
+        isPromotion = false,
+        promotedPiece = null
     }) => {
 
         // =========================
@@ -144,8 +254,6 @@ const Chess = () => {
 
         if (pieceType === 'p') {
 
-            // captures
-
             if (isCapture || isEnPassant) {
 
                 notation =
@@ -166,6 +274,16 @@ const Chess = () => {
             }
 
             notation += targetSquare;
+        }
+
+        // =========================
+        // PROMOTION
+        // =========================
+
+        if (isPromotion && promotedPiece) {
+
+            notation +=
+                `=${pieceNotation[promotedPiece]}`;
         }
 
         // =========================
@@ -388,6 +506,17 @@ const Chess = () => {
                 boardClone[selected[0]][selected[1]] = '';
 
                 // =========================
+                // PAWN PROMOTION CHECK
+                // =========================
+
+                const isPromotion =
+                    movingPiece[1] === 'p' &&
+                    (
+                        (movingPiece[0] === 'w' && row === 0) ||
+                        (movingPiece[0] === 'b' && row === 7)
+                    );
+
+                // =========================
                 // EN PASSANT ENABLE
                 // =========================
 
@@ -406,6 +535,22 @@ const Chess = () => {
                     };
                 }
 
+                if (isPromotion) {
+                    setPromotionData({
+                        boardClone,
+                        row,
+                        col,
+                        movingPiece,
+                        selected,
+                        newCastleState,
+                        nextEnPassantState
+                    });
+
+                    setShowPromotionModal(true);
+                    setSelected(null);
+
+                    return;
+                }
 
                 // =========================
                 // KING SAFETY CHECK
@@ -614,6 +759,15 @@ const Chess = () => {
                     onReset={resetGame}
                 />
             </div>
+
+            {showPromotionModal && (
+
+                <PromotionModal
+                    color={turn}
+                    onSelect={handlePromotion}
+                />
+
+            )}
 
         </div>
     );
