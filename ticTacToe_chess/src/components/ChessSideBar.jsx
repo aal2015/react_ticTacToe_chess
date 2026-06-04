@@ -103,18 +103,42 @@ const ChessSideBar = ({
             {/* Footer */}
             <div
                 className="
-                        border-t
-                        p-3
-                        flex
-                        gap-2
-                        flex-shrink-0
-                    "
+        border-t
+        p-3
+        flex
+        justify-center
+        gap-3
+        flex-shrink-0
+    "
             >
-                <button onClick={onReset}>
+                <button
+                    onClick={onReset}
+                    className="
+            px-4
+            py-2
+            rounded-lg
+            border
+            border-white/30
+            transition-all
+            hover:bg-white/10
+            hover:border-white/60
+        "
+                >
                     Reset
                 </button>
 
-                <button>
+                <button
+                    className="
+            px-4
+            py-2
+            rounded-lg
+            border
+            border-white/30
+            transition-all
+            hover:bg-white/10
+            hover:border-white/60
+        "
+                >
                     Export
                 </button>
             </div>

@@ -720,10 +720,14 @@ const Chess = () => {
             >
 
                 <p
-                    className="
-                    text-2xl
-                    font-bold
-                "
+                    className={`
+                                    text-2xl
+                                    font-bold
+                                    ${turn === 'white'
+                                        ? 'text-white'
+                                        : 'text-black'
+                                    }
+                             `}
                 >
                     {
                         turn === 'white'
