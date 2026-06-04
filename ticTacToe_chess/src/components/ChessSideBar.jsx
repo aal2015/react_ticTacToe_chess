@@ -1,13 +1,18 @@
 import { useEffect, useRef } from 'react';
 
-const ChessSideBar = ({ moveHistory, onReset }) => {
-
-    const bottomRef = useRef(null);
+const ChessSideBar = ({
+    moveHistory, onReset, playerColor, onColorChange
+}) => {
+    const moveListRef = useRef(null);
 
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({
-            behavior: 'smooth'
-        });
+
+        if (moveListRef.current) {
+
+            moveListRef.current.scrollTop =
+                moveListRef.current.scrollHeight;
+        }
+
     }, [moveHistory]);
 
     return (
@@ -20,6 +25,44 @@ const ChessSideBar = ({ moveHistory, onReset }) => {
                 flex flex-col
             "
         >
+            <div
+                className="
+        p-3
+        border-b
+        flex
+        flex-col
+        gap-2
+    "
+            >
+                <p className="text-sm text-gray-300">
+                    Play as {playerColor === 'white' ? 'White' : 'Black'}
+                </p>
+
+                <button
+                    onClick={() =>
+                        onColorChange(
+                            playerColor === 'white'
+                                ? 'black'
+                                : 'white'
+                        )
+                    }
+                    className={`
+                                w-full
+                                py-2
+                                rounded-lg
+                                border
+                                font-semibold
+                                transition-colors
+                                ${playerColor === 'white'
+                            ? 'bg-white text-black border-white'
+                            : 'bg-black text-white border-white'
+                        }
+                            `}
+                >
+                    Switch to {playerColor === 'white' ? 'Black' : 'White'}
+                </button>
+            </div>
+
             {/* Header */}
             <div
                 className="
@@ -34,6 +77,7 @@ const ChessSideBar = ({ moveHistory, onReset }) => {
 
             {/* Scrollable move list */}
             <div
+                ref={moveListRef}
                 className="
                     flex-1
                     overflow-y-auto
@@ -54,8 +98,6 @@ const ChessSideBar = ({ moveHistory, onReset }) => {
                         <span>{move.black}</span>
                     </div>
                 ))}
-
-                <div ref={bottomRef} />
             </div>
 
             {/* Footer */}

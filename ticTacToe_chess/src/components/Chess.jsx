@@ -757,6 +757,8 @@ const Chess = () => {
                 <ChessSideBar
                     moveHistory={moveHistory}
                     onReset={resetGame}
+                    playerColor={playerColor}
+                    onColorChange={setPlayerColor}
                 />
             </div>
 
