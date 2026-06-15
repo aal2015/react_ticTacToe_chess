@@ -11,6 +11,7 @@
 
   font-size: 40px;
   font-weight: bold;
+  color: white;
 
   display: flex;
   justify-content: center;
@@ -19,8 +20,8 @@
   cursor: pointer;
 
   border: none;
-  border-right: 2px solid black;
-  border-bottom: 2px solid black;
+  border-right: 5px solid white;
+  border-bottom: 5px solid white;
 }
 
 /* remove outer right border */
