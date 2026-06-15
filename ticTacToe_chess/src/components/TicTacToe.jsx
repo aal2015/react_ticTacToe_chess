@@ -1,6 +1,22 @@
 import { useState } from 'react';
 import Board from "./TicTacToeBoard";
 
+const winPatterns = [
+    [0,1,2],[0,3,6],[0,4,8],[1,4,7],
+    [2,5,8],[2,4,6],[3,4,5],[6,7,8]
+];
+
+const checkWinner = (boardState) => {
+    for (let [a,b,c] of winPatterns) {
+        if (boardState[a] !== '' &&
+            boardState[a] === boardState[b] &&
+            boardState[a] === boardState[c]) {
+            return true;
+        }
+    }
+    return false;
+};
+
 const TicTacToe = () => {
     const initialBoard = [
         '', '', '',
@@ -11,7 +27,6 @@ const TicTacToe = () => {
     const [board, setBoard] = useState(initialBoard);
     const [turn, setTurn] = useState("X");
 
-
     const handleSquareClick = (index) => {
 
         // Check if already filled
@@ -21,6 +36,9 @@ const TicTacToe = () => {
 
         const newBoard = [...board];
         newBoard[index] = turn;
+        if (checkWinner(newBoard)) {
+            console.log(`Player ${turn} is winner`);
+        }
         setBoard(newBoard);
         setTurn(turn === "X" ? "O" : "X");
     };
