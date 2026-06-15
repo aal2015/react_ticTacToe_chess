@@ -1,7 +1,7 @@
 import Square from "./TicTacToeSquare";
 import './TicTacToeBoard.css';
 
-function Board() {
+function Board({ boardState, onSquareClick }) {
 
   const squares = [];
 
@@ -9,8 +9,8 @@ function Board() {
     squares.push(
       <Square
         key={i}
-        value={null}
-        onClick={() => console.log("clicked", i)}
+        value={boardState[i]}
+        onClick={() => onSquareClick(i)}
       />
     );
   }
