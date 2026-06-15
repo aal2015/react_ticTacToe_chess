@@ -1,5 +1,10 @@
+import Board from "./TicTacToeBoard";
+
 const TicTacToe = () => {
-    return (<>Tic Tac Toe</>);
+    return (<>
+        <p>Tic Tac Toe</p>
+        <Board />
+    </>);
 }
 
 export default TicTacToe;

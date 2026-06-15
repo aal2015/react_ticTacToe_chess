@@ -1,0 +1,38 @@
+.tic-tac-toe-board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+}
+
+.tic-tac-toe-square {
+  width: 100px;
+  height: 100px;
+  /* background: white; */
+
+  font-size: 40px;
+  font-weight: bold;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: pointer;
+
+  border: none;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+/* remove outer right border */
+.tic-tac-toe-square:nth-child(3n) {
+  border-right: none;
+}
+
+/* remove outer bottom border */
+.tic-tac-toe-square:nth-child(n+7) {
+  border-bottom: none;
+}
+
+.tic-tac-toe-square:hover {
+  background: #0e90d6;
+}
