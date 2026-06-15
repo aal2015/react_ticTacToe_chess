@@ -11,7 +11,6 @@
 
   font-size: 40px;
   font-weight: bold;
-  color: white;
 
   display: flex;
   justify-content: center;
@@ -22,6 +21,17 @@
   border: none;
   border-right: 5px solid white;
   border-bottom: 5px solid white;
+}
+
+/* X color */
+.tic-tac-toe-square.x {
+  color: #FFD166;
+}
+
+
+/* O color */
+.tic-tac-toe-square.o {
+  color: white;
 }
 
 /* remove outer right border */
