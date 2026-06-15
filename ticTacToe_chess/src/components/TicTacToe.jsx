@@ -2,11 +2,15 @@ import { useState } from 'react';
 import Board from "./TicTacToeBoard";
 
 const TicTacToe = () => {
-    const [board, setBoard] = useState([
+    const initialBoard = [
         '', '', '',
         '', '', '',
         '', '', ''
-    ]);
+    ];
+
+    const [board, setBoard] = useState(initialBoard);
+    const [turn, setTurn] = useState("X");
+
 
     const handleSquareClick = (index) => {
 
@@ -15,29 +19,47 @@ const TicTacToe = () => {
             return;
         }
 
-        // Create a copy
         const newBoard = [...board];
-
-        // Add current player's mark
         newBoard[index] = turn;
-
-        // Update board
         setBoard(newBoard);
-
-        // Switch turn
         setTurn(turn === "X" ? "O" : "X");
     };
 
-    const [turn, setTurn] =
-        useState("X");
+
+    const resetGame = () => {
+        setBoard(initialBoard);
+        setTurn("X");
+    };
 
     return (
         <>
-            <p>Tic Tac Toe</p>
-            <Board
-                boardState={board}
-                onSquareClick={handleSquareClick}
-            />
+            <div className="flex flex-col items-center gap-4">
+
+                <p className='text-3xl text-white font-bold'>
+                    Tic Tac Toe
+                </p>
+
+                <Board
+                    boardState={board}
+                    onSquareClick={handleSquareClick}
+                />
+
+                <button 
+                    onClick={resetGame}
+                    className="
+                        px-4 
+                        py-2 
+                        rounded-lg 
+                        border 
+                        border-white/30 
+                        text-white 
+                        hover:bg-white/10
+                    "
+                >
+                    Reset
+                </button>
+
+            </div>
         </>
     );
 }
