@@ -1,21 +1,6 @@
 import { useState } from 'react';
 import Board from "./TicTacToeBoard";
-
-const winPatterns = [
-    [0, 1, 2], [0, 3, 6], [0, 4, 8], [1, 4, 7],
-    [2, 5, 8], [2, 4, 6], [3, 4, 5], [6, 7, 8]
-];
-
-const checkWinner = (boardState) => {
-    for (let [a, b, c] of winPatterns) {
-        if (boardState[a] !== '' &&
-            boardState[a] === boardState[b] &&
-            boardState[a] === boardState[c]) {
-            return true;
-        }
-    }
-    return false;
-};
+import { checkWinner, aiPlayMove } from './TicTacToeAi';
 
 const TicTacToe = () => {
     const initialBoard = [
@@ -36,28 +21,59 @@ const TicTacToe = () => {
         setGameActive(false);
     };
 
+    // const handleSquareClick = (index) => {
+    //     // Stop clicking if game is over
+    //     if (!gameActive) {
+    //         return;
+    //     }
+
+    //     // Check if already filled
+    //     if (board[index] !== '') {
+    //         return;
+    //     }
+
+    //     const newBoard = [...board];
+    //     newBoard[index] = turn;
+    //     setBoard(newBoard);
+
+    //     if (checkWinner(newBoard)) {
+    //         console.log(`Player ${turn} is winner`);
+    //         disableGame();
+    //         return;
+    //     }
+
+    //     setTurn(turn === "X" ? "O" : "X");
+    // };
+
     const handleSquareClick = (index) => {
-        // Stop clicking if game is over
         if (!gameActive) {
             return;
         }
 
-        // Check if already filled
         if (board[index] !== '') {
             return;
         }
 
-        const newBoard = [...board];
-        newBoard[index] = turn;
-        setBoard(newBoard);
-        
-        if (checkWinner(newBoard)) {
-            console.log(`Player ${turn} is winner`);
+        // Human move
+        const playerBoard = [...board];
+        playerBoard[index] = "X";
+        setBoard(playerBoard);
+
+        if (checkWinner(playerBoard)) {
+            console.log("Player X wins");
             disableGame();
             return;
         }
-        
-        setTurn(turn === "X" ? "O" : "X");
+
+        // AI move
+        const aiBoard = aiPlayMove([...playerBoard], "O");
+        setBoard(aiBoard);
+
+        if (checkWinner(aiBoard)) {
+            console.log("AI O wins");
+            disableGame();
+            return;
+        }
     };
 
 
