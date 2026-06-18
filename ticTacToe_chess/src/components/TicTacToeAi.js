@@ -14,6 +14,10 @@ export const checkWinner = (boardState) => {
     return false;
 };
 
+export const checkDraw = (boardState) => {
+    return boardState.every(square => square !== '');
+};
+
 const checkTerminalStates = (boardState) => {
     for (let [a, b, c] of winPatterns) {
         if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {

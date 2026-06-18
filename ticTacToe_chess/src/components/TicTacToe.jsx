@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import Board from "./TicTacToeBoard";
-import { checkWinner, aiPlayMove } from './TicTacToeAi';
+import {
+    checkWinner, aiPlayMove, checkDraw
+} from './TicTacToeAi';
 
 const TicTacToe = () => {
 
@@ -15,7 +17,7 @@ const TicTacToe = () => {
 
     const [playerMark, setPlayerMark] = useState("X");
     const aiMark = playerMark === "X" ? "O" : "X";
-
+    const [winnerMessage, setWinnerMessage] = useState("");
 
     const enableGame = () => {
         setGameActive(true);
@@ -28,18 +30,22 @@ const TicTacToe = () => {
 
 
     const makeAiMove = (currentBoard, mark) => {
-
         const aiBoard = aiPlayMove(
             [...currentBoard],
             mark
         );
-
         setBoard(aiBoard);
 
-
         if (checkWinner(aiBoard)) {
-            console.log(`AI ${mark} wins`);
+            setWinnerMessage(`AI ${mark} wins! Play again?`);
             disableGame();
+            return;
+        }
+
+        if (checkDraw(aiBoard)) {
+            setWinnerMessage("Draw! Play again?");
+            disableGame();
+            return;
         }
     };
 
@@ -62,26 +68,26 @@ const TicTacToe = () => {
 
 
     const handleSquareClick = (index) => {
-
         if (!gameActive) return;
-
         if (board[index] !== '') return;
-
 
         // Human move
         const playerBoard = [...board];
-
         playerBoard[index] = playerMark;
-
         setBoard(playerBoard);
 
 
         if (checkWinner(playerBoard)) {
-            console.log(`Player ${playerMark} wins`);
+            setWinnerMessage(`Player ${playerMark} wins! Play again?`);
             disableGame();
             return;
         }
 
+        if (checkDraw(playerBoard)) {
+            setWinnerMessage("Draw! Play again?");
+            disableGame();
+            return;
+        }
 
         // AI move
         makeAiMove(playerBoard, aiMark);
@@ -89,13 +95,10 @@ const TicTacToe = () => {
 
 
     const resetGame = () => {
-
         setBoard(initialBoard);
-
+        setWinnerMessage("");
         enableGame();
 
-
-        // If human is O, AI(X) starts again
         if (playerMark === "O") {
             makeAiMove(initialBoard, "X");
         }
@@ -148,6 +151,12 @@ const TicTacToe = () => {
                     Reset
                 </button>
 
+
+                {winnerMessage && (
+                    <p className="text-xl text-white font-bold">
+                        {winnerMessage}
+                    </p>
+                )}
             </div>
         </>
     );
