@@ -3,6 +3,7 @@ import Board from "./TicTacToeBoard";
 import { checkWinner, aiPlayMove } from './TicTacToeAi';
 
 const TicTacToe = () => {
+
     const initialBoard = [
         '', '', '',
         '', '', '',
@@ -10,78 +11,96 @@ const TicTacToe = () => {
     ];
 
     const [board, setBoard] = useState(initialBoard);
-    const [turn, setTurn] = useState("X");
     const [gameActive, setGameActive] = useState(true);
+
+    const [playerMark, setPlayerMark] = useState("X");
+    const aiMark = playerMark === "X" ? "O" : "X";
+
 
     const enableGame = () => {
         setGameActive(true);
     };
 
+
     const disableGame = () => {
         setGameActive(false);
     };
 
-    // const handleSquareClick = (index) => {
-    //     // Stop clicking if game is over
-    //     if (!gameActive) {
-    //         return;
-    //     }
 
-    //     // Check if already filled
-    //     if (board[index] !== '') {
-    //         return;
-    //     }
+    const makeAiMove = (currentBoard, mark) => {
 
-    //     const newBoard = [...board];
-    //     newBoard[index] = turn;
-    //     setBoard(newBoard);
+        const aiBoard = aiPlayMove(
+            [...currentBoard],
+            mark
+        );
 
-    //     if (checkWinner(newBoard)) {
-    //         console.log(`Player ${turn} is winner`);
-    //         disableGame();
-    //         return;
-    //     }
+        setBoard(aiBoard);
 
-    //     setTurn(turn === "X" ? "O" : "X");
-    // };
+
+        if (checkWinner(aiBoard)) {
+            console.log(`AI ${mark} wins`);
+            disableGame();
+        }
+    };
+
+
+    const togglePlayer = () => {
+
+        const newPlayerMark = playerMark === "X" ? "O" : "X";
+
+        setPlayerMark(newPlayerMark);
+
+        setBoard(initialBoard);
+        enableGame();
+
+
+        // AI is X, so AI starts
+        if (newPlayerMark === "O") {
+            makeAiMove(initialBoard, "X");
+        }
+    };
+
 
     const handleSquareClick = (index) => {
-        if (!gameActive) {
-            return;
-        }
 
-        if (board[index] !== '') {
-            return;
-        }
+        if (!gameActive) return;
+
+        if (board[index] !== '') return;
+
 
         // Human move
         const playerBoard = [...board];
-        playerBoard[index] = "X";
+
+        playerBoard[index] = playerMark;
+
         setBoard(playerBoard);
 
+
         if (checkWinner(playerBoard)) {
-            console.log("Player X wins");
+            console.log(`Player ${playerMark} wins`);
             disableGame();
             return;
         }
+
 
         // AI move
-        const aiBoard = aiPlayMove([...playerBoard], "O");
-        setBoard(aiBoard);
-
-        if (checkWinner(aiBoard)) {
-            console.log("AI O wins");
-            disableGame();
-            return;
-        }
+        makeAiMove(playerBoard, aiMark);
     };
 
 
     const resetGame = () => {
+
         setBoard(initialBoard);
-        setTurn("X");
+
         enableGame();
+
+
+        // If human is O, AI(X) starts again
+        if (playerMark === "O") {
+            makeAiMove(initialBoard, "X");
+        }
     };
+
 
     return (
         <>
@@ -91,20 +110,38 @@ const TicTacToe = () => {
                     Tic Tac Toe
                 </p>
 
+
+                <button
+                    onClick={togglePlayer}
+                    className="
+                        px-4
+                        py-2
+                        rounded-lg
+                        border
+                        border-white/30
+                        text-white
+                        hover:bg-white/10
+                    "
+                >
+                    Play as: {playerMark}
+                </button>
+
+
                 <Board
                     boardState={board}
                     onSquareClick={handleSquareClick}
                 />
 
+
                 <button
                     onClick={resetGame}
                     className="
-                        px-4 
-                        py-2 
-                        rounded-lg 
-                        border 
-                        border-white/30 
-                        text-white 
+                        px-4
+                        py-2
+                        rounded-lg
+                        border
+                        border-white/30
+                        text-white
                         hover:bg-white/10
                     "
                 >
