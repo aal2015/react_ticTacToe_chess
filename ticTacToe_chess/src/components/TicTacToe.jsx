@@ -114,20 +114,26 @@ const TicTacToe = () => {
                 </p>
 
 
-                <button
-                    onClick={togglePlayer}
-                    className="
-                        px-4
-                        py-2
-                        rounded-lg
-                        border
-                        border-white/30
-                        text-white
-                        hover:bg-white/10
-                    "
-                >
-                    Play as: {playerMark}
-                </button>
+                <div className="flex flex-col items-center gap-1">
+                    <button
+                        onClick={togglePlayer}
+                        className="
+                                    px-4
+                                    py-2
+                                    rounded-lg
+                                    border
+                                    border-white/30
+                                    text-white
+                                    hover:bg-white/10
+                                "
+                    >
+                        Play as: {playerMark}
+                    </button>
+
+                    <p className="text-sm text-white/60">
+                        Click to switch between X and O
+                    </p>
+                </div>
 
 
                 <Board
