@@ -34,23 +34,19 @@ const Chess = () => {
         blackRightRookMoved: false
     });
 
-    const [turn, setTurn] =
-        useState("white");
+    const [turn, setTurn] = useState("white");
 
-    const [selected, setSelected] =
-        useState(null);
+    const [winner, setWinner] = useState(null);
 
-    const [moveCount, setMoveCount] =
-        useState(0);
+    const [selected, setSelected] = useState(null);
 
-    const [enPassantState, setEnPassantState] =
-        useState(null);
+    const [moveCount, setMoveCount] = useState(0);
 
-    const [playerColor, setPlayerColor] =
-        useState("white");
+    const [enPassantState, setEnPassantState] = useState(null);
 
-    const [moveHistory, setMoveHistory] =
-        useState([]);
+    const [playerColor, setPlayerColor] = useState("white");
+
+    const [moveHistory, setMoveHistory] = useState([]);
 
     const resetGame = () => {
         console.log("Detected");
@@ -195,6 +191,28 @@ const Chess = () => {
         setMoveCount(
             prev => prev + 1
         );
+    };
+
+    const getStatusText = () => {
+
+        if (winner) {
+
+            const winnerType =
+                winner === playerColor
+                    ? "You"
+                    : "AI";
+
+            return `${winner} wins! (${winnerType})`;
+        }
+
+
+        const turnType =
+            turn === playerColor
+                ? "you"
+                : "AI";
+
+
+        return `${turn}'s turn (${turnType})`;
     };
 
     const generateMoveNotation = ({
@@ -654,8 +672,8 @@ const Chess = () => {
                 // =========================
 
                 if (checkMateState) {
-
                     console.log("Checkmate!!");
+                    setWinner(playerColor);
                 }
 
                 // =========================
@@ -723,17 +741,13 @@ const Chess = () => {
                     className={`
                                     text-2xl
                                     font-bold
-                                    ${turn === 'white'
-                                        ? 'text-white'
-                                        : 'text-black'
-                                    }
+                                    ${(turn === 'white' || winner)
+                            ? 'text-white'
+                            : 'text-black'
+                        }
                              `}
                 >
-                    {
-                        turn === 'white'
-                            ? 'White Turn'
-                            : 'Black Turn'
-                    }
+                    {getStatusText()}
                 </p>
 
                 <ChessBoard
