@@ -960,6 +960,164 @@ export const isCheckMate = (
     return true;
 };
 
+export const hasAnyLegalMove = (
+    board,
+    color,
+    enPassantState,
+    moveCount
+) => {
+    const pieceColorCode =
+        color === "white" ? "w" : "b";
+
+    const castleState = {
+        whiteKingMoved: true,
+        blackKingMoved: true,
+
+        whiteLeftRookMoved: true,
+        whiteRightRookMoved: true,
+
+        blackLeftRookMoved: true,
+        blackRightRookMoved: true
+    };
+
+
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const piece = board[row][col];
+            if (
+                piece === '' ||
+                piece[0] !== pieceColorCode
+            ) {
+                continue;
+            }
+
+            let moves = [];
+
+            switch(piece[1]) {
+                case "k":
+                    moves = generateKingMoves(
+                        board,
+                        [row,col],
+                        castleState
+                    );
+                    break;
+                case "q":
+                    moves = generateQueenMoves(
+                        board,
+                        [row,col]
+                    );
+                    break;
+                case "r":
+                    moves = generateRookMoves(
+                        board,
+                        [row,col]
+                    );
+                    break;
+                case "b":
+                    moves = generateBishopMoves(
+                        board,
+                        [row,col]
+                    );
+                    break;
+                case "n":
+                    moves = generateKnightMoves(
+                        board,
+                        [row,col]
+                    );
+                    break;
+                case "p":
+                    moves = generatePawnMoves(
+                        board,
+                        [row,col],
+                        color,
+                        enPassantState,
+                        moveCount
+                    );
+                    break;
+            }
+
+
+
+            for (const [newRow,newCol] of moves) {
+                const clone =
+                    board.map(
+                        r => [...r]
+                    );
+
+                clone[newRow][newCol] =
+                    clone[row][col];
+
+                clone[row][col] = "";
+
+                if (
+                    !wouldKingBeInCheckAfterMove(
+                        clone,
+                        color
+                    )
+                ) {
+
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+};
+
+export const isStaleMate = (
+    board,
+    color,
+    enPassantState,
+    moveCount
+)=>{
+
+
+    const pieceColorCode =
+        color==="white"
+        ?"w"
+        :"b";
+
+
+    const king =
+        findPlayerKingPosition(
+            board,
+            pieceColorCode
+        );
+
+
+    const enemy =
+        color==="white"
+        ?"black"
+        :"white";
+
+
+
+    // king is checked => checkmate, not stalemate
+
+    if(
+        isSquareUnderAttack(
+            board,
+            king[0],
+            king[1],
+            enemy
+        )
+    ){
+        return false;
+    }
+
+
+
+    // no legal moves => stalemate
+
+    return !hasAnyLegalMove(
+        board,
+        color,
+        enPassantState,
+        moveCount
+    );
+
+};
+
 export const isMoveValid = (
     board,
     selected,
