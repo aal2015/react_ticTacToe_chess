@@ -28,4 +28,52 @@ describe("Checkmate detection", () => {
 
     });
 
+    it("returns false when king can escape", () => {
+
+
+        const board = emptyBoard();
+
+        board[0][6] = "bk"; // g8
+        board[2][6] = "wq"; // g6
+        board[3][6] = "wk"; // g5
+
+
+        const result =
+            isCheckMate(
+                board,
+                "black",
+                null,
+                0
+            );
+
+
+        expect(result)
+            .toBe(false);
+
+    });
+
+    it("returns false when king is not checked", () => {
+
+
+        const board = emptyBoard();
+
+
+        board[0][5] = "bk"; // f8
+        board[2][6] = "wq"; // g6
+        board[3][6] = "wk"; // g5
+
+
+        const result =
+            isCheckMate(
+                board,
+                "black",
+                null,
+                0
+            );
+
+
+        expect(result)
+            .toBe(false);
+
+    });
 });
