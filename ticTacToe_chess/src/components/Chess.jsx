@@ -12,23 +12,23 @@ import {
 import PromotionModal from './PawnPromotionModal';
 
 const initBoard = [
-        ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-        ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-        ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+        // ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+        // ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+        // ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
 
-        // ['bk', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', 'wq'],
-        // ['', '', '', 'wk', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
+        ['bk', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', 'wq'],
+        ['', '', '', 'wk', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
     ];
 
 const Chess = () => {
@@ -134,6 +134,57 @@ const Chess = () => {
                 moveCount + 1
             );
 
+        // =========================
+        // STALEMATE CHECK (PROMOTION)
+        // =========================
+
+        const stalemateState = isStaleMate(
+            boardClone,
+            enemyColor,
+            nextEnPassantState,
+            moveCount + 1
+        );
+
+        console.log(`DEBUG: checkMate=${checkMateState}, stalemate=${stalemateState}`);
+
+        if (stalemateState) {
+            console.log("Stalemate!");
+            const notation = generateMoveNotation({
+                movingPiece,
+                selected,
+                row,
+                col,
+                isCapture,
+                isEnPassant,
+                isCheck: checkState,
+                isCheckMate: checkMateState,
+                isStaleMate: stalemateState,
+                isPromotion: true,
+                promotedPiece
+            });
+            setMoveHistory(prev => {
+                const updatedHistory = [...prev];
+                if (turn === 'white') {
+                    updatedHistory.push({
+                        moveNumber:
+                            Math.floor(moveCount / 2) + 1,
+                        white: notation,
+                        black: ''
+                    });
+                } else {
+                    updatedHistory[
+                        updatedHistory.length - 1
+                    ].black = notation;
+                }
+                return updatedHistory;
+            });
+            setBoard(boardClone);
+            setCastleState(newCastleState);
+            setEnPassantState(nextEnPassantState);
+            setWinner(null);
+            return;
+        }
+
         const notation =
             generateMoveNotation({
                 movingPiece,
@@ -144,6 +195,7 @@ const Chess = () => {
                 isEnPassant,
                 isCheck: checkState,
                 isCheckMate: checkMateState,
+                isStaleMate: stalemateState,
                 isPromotion: true,
                 promotedPiece
             });
@@ -226,6 +278,7 @@ const Chess = () => {
         isCastleQueenSide,
         isCheck,
         isCheckMate,
+        isStaleMate,
         isEnPassant,
         isPromotion = false,
         promotedPiece = null
@@ -306,12 +359,18 @@ const Chess = () => {
         }
 
         // =========================
-        // CHECK / CHECKMATE
+        // CHECK / CHECKMATE / STALEMATE
         // =========================
+
+        console.log(`DEBUG generateMoveNotation: isCheck=${isCheck}, isCheckMate=${isCheckMate}, isStaleMate=${isStaleMate}`);
 
         if (isCheckMate) {
 
             notation += '#';
+
+        } else if (isStaleMate) {
+
+            notation += '=';
 
         } else if (isCheck) {
 
@@ -610,6 +669,60 @@ const Chess = () => {
                     );
 
                 // =========================
+                // STALEMATE CHECK
+                // =========================
+
+                const stalemateState = isStaleMate(
+                    boardClone,
+                    enemyColor,
+                    nextEnPassantState,
+                    moveCount + 1
+                );
+
+                console.log(`DEBUG: checkMate=${checkMateState}, stalemate=${stalemateState}`);
+
+                if (stalemateState) {
+                    console.log("Stalemate!");
+                    const notation = generateMoveNotation({
+                        movingPiece,
+                        selected,
+                        row,
+                        col,
+                        isCapture,
+                        isCastleKingSide,
+                        isCastleQueenSide,
+                        isCheck: checkState,
+                        isCheckMate: checkMateState,
+                        isStaleMate: stalemateState,
+                        isEnPassant
+                    });
+                    setMoveHistory((prev) => {
+                        const updatedHistory = [...prev];
+                        // white move
+                        if (turn === 'white') {
+                            updatedHistory.push({
+                                moveNumber:
+                                    Math.floor(moveCount / 2) + 1,
+                                white: notation,
+                                black: ''
+                            });
+                        } else {
+                            // black move
+                            updatedHistory[
+                                updatedHistory.length - 1
+                            ].black = notation;
+                        }
+                        return updatedHistory;
+                    });
+                    setBoard(boardClone);
+                    setCastleState(newCastleState);
+                    setEnPassantState(nextEnPassantState);
+                    setWinner(null);
+                    setSelected(null);
+                    return;
+                }
+
+                // =========================
                 // GENERATE NOTATION
                 // =========================
 
@@ -624,6 +737,7 @@ const Chess = () => {
                         isCastleQueenSide,
                         isCheck: checkState,
                         isCheckMate: checkMateState,
+                        isStaleMate: stalemateState,
                         isEnPassant
                     });
 
@@ -668,30 +782,7 @@ const Chess = () => {
 
                 setEnPassantState(nextEnPassantState);
 
-                // =========================
-                // CHECKMATE
-                // =========================
 
-                if (checkMateState) {
-                    console.log("Checkmate!!");
-                    setWinner(playerColor);
-                }
-
-                // =========================
-                // STALEMATE
-                // =========================
-
-                const stalemateState = isStaleMate(
-                    boardClone,
-                    enemyColor,
-                    nextEnPassantState,
-                    moveCount + 1
-                );
-
-                if (stalemateState) {
-                    console.log("Stalemate!");
-                    setWinner(null);
-                }
 
                 // =========================
                 // NEXT TURN

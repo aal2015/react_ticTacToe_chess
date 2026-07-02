@@ -1072,6 +1072,8 @@ export const isStaleMate = (
 )=>{
 
 
+    console.log(`DEBUG isStaleMate: color=${color}`);
+
     const pieceColorCode =
         color==="white"
         ?"w"
