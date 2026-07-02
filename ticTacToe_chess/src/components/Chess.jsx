@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
+import GameOverModal from './GameOverModal';
 
 import {
     isMoveValid,
@@ -12,24 +13,24 @@ import {
 import PromotionModal from './PawnPromotionModal';
 
 const initBoard = [
-        // ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-        // ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['', '', '', '', '', '', '', ''],
-        // ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-        // ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+    // ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+    // ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+    // ['', '', '', '', '', '', '', ''],
+    // ['', '', '', '', '', '', '', ''],
+    // ['', '', '', '', '', '', '', ''],
+    // ['', '', '', '', '', '', '', ''],
+    // ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+    // ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
 
-        ['bk', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', 'wq'],
-        ['', '', '', 'wk', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-    ];
+    ['wk', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', 'bq'],
+    ['', '', '', 'bk', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+];
 
 const Chess = () => {
 
@@ -49,6 +50,8 @@ const Chess = () => {
     const [turn, setTurn] = useState("white");
 
     const [winner, setWinner] = useState(null);
+
+    const [gameResult, setGameResult] = useState(null);
 
     const [selected, setSelected] = useState(null);
 
@@ -85,6 +88,8 @@ const Chess = () => {
             blackLeftRookMoved: false,
             blackRightRookMoved: false
         });
+
+        setGameResult(null);
     };
 
     const [showPromotionModal, setShowPromotionModal] =
@@ -668,6 +673,13 @@ const Chess = () => {
                         moveCount + 1
                     );
 
+                if (checkMateState) {
+                    setGameResult({
+                        title: "Checkmate",
+                        message: `${turn} wins!`
+                    });
+                }
+
                 // =========================
                 // STALEMATE CHECK
                 // =========================
@@ -719,6 +731,10 @@ const Chess = () => {
                     setEnPassantState(nextEnPassantState);
                     setWinner(null);
                     setSelected(null);
+                    setGameResult({
+                        title: "Stalemate",
+                        message: "The game ends in a draw."
+                    });
                     return;
                 }
 
@@ -896,6 +912,13 @@ const Chess = () => {
                 />
 
             )}
+
+            <GameOverModal
+                isOpen={gameResult !== null}
+                title={gameResult?.title}
+                message={gameResult?.message}
+                onPlayAgain={resetGame}
+            />
 
         </div>
     );
