@@ -5,14 +5,13 @@ import ChessSideBar from './ChessSideBar';
 import {
     isMoveValid,
     wouldKingBeInCheckAfterMove,
-    isCheckMate
+    isCheckMate,
+    isStaleMate
 } from './moveValidCheck';
 
 import PromotionModal from './PawnPromotionModal';
 
-const Chess = () => {
-
-    const [board, setBoard] = useState([
+const initBoard = [
         ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
         ['', '', '', '', '', '', '', ''],
@@ -21,7 +20,20 @@ const Chess = () => {
         ['', '', '', '', '', '', '', ''],
         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
         ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-    ]);
+
+        // ['bk', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', 'wq'],
+        // ['', '', '', 'wk', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+        // ['', '', '', '', '', '', '', ''],
+    ];
+
+const Chess = () => {
+
+    const [board, setBoard] = useState(initBoard);
 
     const [castleState, setCastleState] = useState({
         whiteKingMoved: false,
@@ -51,18 +63,7 @@ const Chess = () => {
     const resetGame = () => {
         console.log("Detected");
 
-        setBoard(
-            [
-                ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-                ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-                ['', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', ''],
-                ['', '', '', '', '', '', '', ''],
-                ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-                ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-            ]
-        );
+        setBoard(initBoard);
 
         setTurn("white");
 
@@ -674,6 +675,22 @@ const Chess = () => {
                 if (checkMateState) {
                     console.log("Checkmate!!");
                     setWinner(playerColor);
+                }
+
+                // =========================
+                // STALEMATE
+                // =========================
+
+                const stalemateState = isStaleMate(
+                    boardClone,
+                    enemyColor,
+                    nextEnPassantState,
+                    moveCount + 1
+                );
+
+                if (stalemateState) {
+                    console.log("Stalemate!");
+                    setWinner(null);
                 }
 
                 // =========================
