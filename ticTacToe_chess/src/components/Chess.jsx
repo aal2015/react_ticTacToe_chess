@@ -3,14 +3,13 @@ import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
 import { pieceNotation, generateMoveNotation } from './moveNotation';
-
 import {
     isMoveValid,
     wouldKingBeInCheckAfterMove,
     isCheckMate,
     isStaleMate
 } from './moveValidCheck';
-
+import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
 
 const initBoard = [
@@ -23,9 +22,9 @@ const initBoard = [
     // ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
     // ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
 
-    ['wk', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', 'bq'],
-    ['', '', '', 'bk', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['bk', '', 'wp', '', '', '', 'wq', ''],
+    ['', '', '', 'wk', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
@@ -34,9 +33,7 @@ const initBoard = [
 ];
 
 const Chess = () => {
-
     const [board, setBoard] = useState(initBoard);
-
     const [castleState, setCastleState] = useState({
         whiteKingMoved: false,
         blackKingMoved: false,
@@ -47,38 +44,22 @@ const Chess = () => {
         blackLeftRookMoved: false,
         blackRightRookMoved: false
     });
-
     const [turn, setTurn] = useState("white");
-
     const [winner, setWinner] = useState(null);
-
     const [gameResult, setGameResult] = useState(null);
-
     const [selected, setSelected] = useState(null);
-
     const [moveCount, setMoveCount] = useState(0);
-
     const [enPassantState, setEnPassantState] = useState(null);
-
     const [playerColor, setPlayerColor] = useState("white");
-
     const [moveHistory, setMoveHistory] = useState([]);
 
     const resetGame = () => {
-        console.log("Detected");
-
         setBoard(initBoard);
-
         setTurn("white");
-
         setSelected(null);
-
         setMoveCount(0);
-
         setEnPassantState(null);
-
         setMoveHistory([]);
-
         setCastleState({
             whiteKingMoved: false,
             blackKingMoved: false,
@@ -89,7 +70,6 @@ const Chess = () => {
             blackLeftRookMoved: false,
             blackRightRookMoved: false
         });
-
         setGameResult(null);
     };
 
@@ -99,8 +79,7 @@ const Chess = () => {
     const [promotionData, setPromotionData] =
         useState(null);
 
-    const handlePromotion = (promotedPiece) => {
-
+    const handlePromotionHelper = (promotedPiece) => {
         const {
             boardClone,
             row,
@@ -113,143 +92,54 @@ const Chess = () => {
             isEnPassant
         } = promotionData;
 
-        const colorCode =
-            turn === 'white'
-                ? 'w'
-                : 'b';
-
-        boardClone[row][col] =
-            `${colorCode}${promotedPiece}`;
-
-        const enemyColor =
-            turn === 'white'
-                ? 'black'
-                : 'white';
-
-        const checkState =
-            wouldKingBeInCheckAfterMove(
-                boardClone,
-                enemyColor
-            );
-
-        const checkMateState =
-            isCheckMate(
-                boardClone,
-                enemyColor,
-                nextEnPassantState,
-                moveCount + 1
-            );
-
-        // =========================
-        // STALEMATE CHECK (PROMOTION)
-        // =========================
-
-        const stalemateState = isStaleMate(
+        const {
+            updatedBoardClone,
+            updatedCastleState,
+            updatedEnPassantState,
+            updatedHistory,
+            udpdatedTurn,
+            updatedMoveCount,
+            checkMateState,
+            stalemateState
+        } = handlePromotion(
             boardClone,
-            enemyColor,
+            selected,
+            movingPiece,
+            row,
+            col,
+            isCapture,
+            isEnPassant,
+            turn,
+            moveCount,
+            castleState,
             nextEnPassantState,
-            moveCount + 1
-        );
-
-        console.log(`DEBUG: checkMate=${checkMateState}, stalemate=${stalemateState}`);
-
-        if (stalemateState) {
-            console.log("Stalemate!");
-            const notation = generateMoveNotation({
-                movingPiece,
-                selected,
-                row,
-                col,
-                isCapture,
-                isEnPassant,
-                isCheck: checkState,
-                isCheckMate: checkMateState,
-                isStaleMate: stalemateState,
-                isPromotion: true,
-                promotedPiece
-            });
-            setMoveHistory(prev => {
-                const updatedHistory = [...prev];
-                if (turn === 'white') {
-                    updatedHistory.push({
-                        moveNumber:
-                            Math.floor(moveCount / 2) + 1,
-                        white: notation,
-                        black: ''
-                    });
-                } else {
-                    updatedHistory[
-                        updatedHistory.length - 1
-                    ].black = notation;
-                }
-                return updatedHistory;
-            });
-            setBoard(boardClone);
-            setCastleState(newCastleState);
-            setEnPassantState(nextEnPassantState);
-            setWinner(null);
-            return;
-        }
-
-        const notation =
-            generateMoveNotation({
-                movingPiece,
-                selected,
-                row,
-                col,
-                isCapture,
-                isEnPassant,
-                isCheck: checkState,
-                isCheckMate: checkMateState,
-                isStaleMate: stalemateState,
-                isPromotion: true,
-                promotedPiece
-            });
-
-        setMoveHistory(prev => {
-
-            const updatedHistory = [...prev];
-
-            if (turn === 'white') {
-
-                updatedHistory.push({
-                    moveNumber:
-                        Math.floor(moveCount / 2) + 1,
-                    white: notation,
-                    black: ''
-                });
-
-            } else {
-
-                updatedHistory[
-                    updatedHistory.length - 1
-                ].black = notation;
-            }
-
-            return updatedHistory;
-        });
+            moveHistory,
+            promotedPiece)
 
         setBoard(boardClone);
-
         setCastleState(newCastleState);
-
-        setEnPassantState(
-            nextEnPassantState
-        );
-
+        setEnPassantState(nextEnPassantState);
         setShowPromotionModal(false);
-
         setPromotionData(null);
-
         setTurn(
             turn === 'white'
                 ? 'black'
                 : 'white'
         );
-
         setMoveCount(
             prev => prev + 1
         );
+        if (checkMateState) {
+            setGameResult({
+                title: "Checkmate",
+                message: `${turn} wins!`
+            });
+        } else if (stalemateState) {
+            setGameResult({
+                title: "Stalemate",
+                message: "The game ends in a draw."
+            });
+        }
     };
 
     const getStatusText = () => {
@@ -788,7 +678,7 @@ const Chess = () => {
 
                 <PromotionModal
                     color={turn}
-                    onSelect={handlePromotion}
+                    onSelect={handlePromotionHelper}
                 />
 
             )}
