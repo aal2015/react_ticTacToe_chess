@@ -97,7 +97,6 @@ const Chess = () => {
             updatedCastleState,
             updatedEnPassantState,
             updatedHistory,
-            udpdatedTurn,
             updatedMoveCount,
             checkMateState,
             stalemateState
@@ -116,19 +115,18 @@ const Chess = () => {
             moveHistory,
             promotedPiece)
 
-        setBoard(boardClone);
-        setCastleState(newCastleState);
-        setEnPassantState(nextEnPassantState);
+        setBoard(updatedBoardClone);
+        setCastleState(updatedCastleState);
+        setEnPassantState(updatedEnPassantState);
         setShowPromotionModal(false);
+        setMoveHistory(updatedHistory);
         setPromotionData(null);
         setTurn(
             turn === 'white'
                 ? 'black'
                 : 'white'
         );
-        setMoveCount(
-            prev => prev + 1
-        );
+        setMoveCount(updatedMoveCount);
         if (checkMateState) {
             setGameResult({
                 title: "Checkmate",

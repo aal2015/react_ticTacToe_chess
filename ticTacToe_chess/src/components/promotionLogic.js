@@ -40,19 +40,22 @@ export const handlePromotion = (
         isCheckMate(
             boardClone,
             enemyColor,
-            isEnPassant,
+            enPassantState,
             moveCount + 1
         );
 
     const stalemateState = isStaleMate(
         boardClone,
         enemyColor,
-        isEnPassant,
+        enPassantState,
         moveCount + 1
     );
 
-
-    // TODO: add stalemate
+    const checkState =
+    wouldKingBeInCheckAfterMove(
+        boardClone,
+        enemyColor
+    );
 
     const notation =
         generateMoveNotation({
@@ -62,7 +65,7 @@ export const handlePromotion = (
             col,
             isCapture,
             isEnPassant,
-            isCheck: false,
+            isCheck: checkState,
             isCheckMate: checkMateState,
             isStaleMate: stalemateState,
             isPromotion: true,
@@ -88,10 +91,6 @@ export const handlePromotion = (
         updatedCastleState: newCastleState,
         updatedEnPassantState: enPassantState,
         updatedHistory: updatedHistory,
-        udpdatedTurn:
-            turn === "white"
-                ? "black"
-                : "white",
         updatedMoveCount:
             moveCount + 1,
         checkMateState: checkMateState,
