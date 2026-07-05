@@ -1,4 +1,10 @@
-function GameOverModal({ isOpen, title, message, onPlayAgain }) {
+function GameOverModal({
+    isOpen,
+    title,
+    message,
+    onPlayAgain,
+    onClose
+}) {
 
     if (!isOpen) return null;
 
@@ -46,21 +52,45 @@ function GameOverModal({ isOpen, title, message, onPlayAgain }) {
                     {message}
                 </p>
 
-                <button
-                    onClick={onPlayAgain}
+                <div
                     className="
-                        px-6
-                        py-3
-                        rounded-lg
-                        bg-cyan-500
-                        hover:bg-cyan-400
-                        text-white
-                        font-semibold
-                        transition
+                        flex
+                        justify-center
+                        gap-4
                     "
                 >
-                    Play Again
-                </button>
+                    <button
+                        onClick={onClose}
+                        className="
+                            px-6
+                            py-3
+                            rounded-lg
+                            bg-gray-600
+                            hover:bg-gray-500
+                            text-white
+                            font-semibold
+                            transition
+                        "
+                    >
+                        Close
+                    </button>
+
+                    <button
+                        onClick={onPlayAgain}
+                        className="
+                            px-6
+                            py-3
+                            rounded-lg
+                            bg-cyan-500
+                            hover:bg-cyan-400
+                            text-white
+                            font-semibold
+                            transition
+                        "
+                    >
+                        Play Again
+                    </button>
+                </div>
             </div>
         </div>
     );

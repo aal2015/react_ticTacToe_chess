@@ -101,8 +101,6 @@ export const generateMoveNotation = ({
     // CHECK / CHECKMATE / STALEMATE
     // =========================
 
-    console.log(`DEBUG generateMoveNotation: isCheck=${isCheck}, isCheckMate=${isCheckMate}, isStaleMate=${isStaleMate}`);
-
     if (isCheckMate) {
 
         notation += '#';

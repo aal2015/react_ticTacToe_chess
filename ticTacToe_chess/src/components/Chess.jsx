@@ -21,15 +21,6 @@ const initBoard = [
     ['', '', '', '', '', '', '', ''],
     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-
-    // ['', '', '', '', '', '', '', ''],
-    // ['bk', '', 'wp', '', '', '', 'wq', ''],
-    // ['', '', '', 'wk', '', '', '', ''],
-    // ['bn', '', '', '', '', '', '', ''],
-    // ['', '', '', '', '', '', '', ''],
-    // ['', '', '', '', '', '', '', ''],
-    // ['', '', '', '', '', '', '', ''],
-    // ['', '', '', '', '', '', '', ''],
 ];
 
 const Chess = () => {
@@ -78,6 +69,10 @@ const Chess = () => {
 
     const [promotionData, setPromotionData] =
         useState(null);
+
+    const closeGameOverModal = () => {
+        setGameResult(null);
+    };
 
     const handlePromotionHelper = (promotedPiece) => {
         const {
@@ -459,8 +454,6 @@ const Chess = () => {
                     moveCount + 1
                 );
 
-                console.log(`DEBUG: checkMate=${checkMateState}, stalemate=${stalemateState}`);
-
                 if (stalemateState) {
                     console.log("Stalemate!");
                     const notation = generateMoveNotation({
@@ -686,8 +679,8 @@ const Chess = () => {
                 title={gameResult?.title}
                 message={gameResult?.message}
                 onPlayAgain={resetGame}
+                onClose={closeGameOverModal}
             />
-
         </div>
     );
 };
