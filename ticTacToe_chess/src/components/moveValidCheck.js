@@ -960,7 +960,7 @@ export const isCheckMate = (
     return true;
 };
 
-export const hasAnyLegalMove = (
+const hasAnyLegalMove = (
     board,
     color,
     enPassantState,
@@ -993,42 +993,42 @@ export const hasAnyLegalMove = (
 
             let moves = [];
 
-            switch(piece[1]) {
+            switch (piece[1]) {
                 case "k":
                     moves = generateKingMoves(
                         board,
-                        [row,col],
+                        [row, col],
                         castleState
                     );
                     break;
                 case "q":
                     moves = generateQueenMoves(
                         board,
-                        [row,col]
+                        [row, col]
                     );
                     break;
                 case "r":
                     moves = generateRookMoves(
                         board,
-                        [row,col]
+                        [row, col]
                     );
                     break;
                 case "b":
                     moves = generateBishopMoves(
                         board,
-                        [row,col]
+                        [row, col]
                     );
                     break;
                 case "n":
                     moves = generateKnightMoves(
                         board,
-                        [row,col]
+                        [row, col]
                     );
                     break;
                 case "p":
                     moves = generatePawnMoves(
                         board,
-                        [row,col],
+                        [row, col],
                         color,
                         enPassantState,
                         moveCount
@@ -1036,9 +1036,7 @@ export const hasAnyLegalMove = (
                     break;
             }
 
-
-
-            for (const [newRow,newCol] of moves) {
+            for (const [newRow, newCol] of moves) {
                 const clone =
                     board.map(
                         r => [...r]
@@ -1064,21 +1062,77 @@ export const hasAnyLegalMove = (
     return false;
 };
 
+const isMaterialInsufficient = (board) => {
+    const whitePieces = [];
+    const blackPieces = [];
+
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+            const piece = board[row][col];
+
+            if (piece === "" || piece[1] === "k") continue;
+
+            if (piece[0] === "w") {
+                whitePieces.push(piece);
+            } else {
+                blackPieces.push(piece);
+            }
+        }
+    }
+
+    // King vs King
+    if (
+        whitePieces.length === 0 &&
+        blackPieces.length === 0
+    ) {
+        return true;
+    }
+
+    // King + Bishop/Knight vs King
+    if (
+        whitePieces.length === 1 &&
+        blackPieces.length === 0 &&
+        ["b", "n"].includes(whitePieces[0][1])
+    ) {
+        return true;
+    }
+
+    if (
+        blackPieces.length === 1 &&
+        whitePieces.length === 0 &&
+        ["b", "n"].includes(blackPieces[0][1])
+    ) {
+        return true;
+    }
+
+    // King + Bishop vs King + Bishop
+    if (
+        whitePieces.length === 1 &&
+        blackPieces.length === 1 &&
+        whitePieces[0][1] === "b" &&
+        blackPieces[0][1] === "b"
+    ) {
+        return true;
+    }
+
+    return false;
+};
+
 export const isStaleMate = (
     board,
     color,
     enPassantState,
     moveCount
-)=>{
-
-
-    console.log(`DEBUG isStaleMate: color=${color}`);
+) => {
+    // material insufficiency check 
+    if (isMaterialInsufficient(board)) {
+        return true;
+    }
 
     const pieceColorCode =
-        color==="white"
-        ?"w"
-        :"b";
-
+        color === "white"
+            ? "w"
+            : "b";
 
     const king =
         findPlayerKingPosition(
@@ -1086,38 +1140,30 @@ export const isStaleMate = (
             pieceColorCode
         );
 
-
     const enemy =
-        color==="white"
-        ?"black"
-        :"white";
-
-
+        color === "white"
+            ? "black"
+            : "white";
 
     // king is checked => checkmate, not stalemate
-
-    if(
+    if (
         isSquareUnderAttack(
             board,
             king[0],
             king[1],
             enemy
         )
-    ){
+    ) {
         return false;
     }
 
-
-
     // no legal moves => stalemate
-
     return !hasAnyLegalMove(
         board,
         color,
         enPassantState,
         moveCount
     );
-
 };
 
 export const isMoveValid = (
