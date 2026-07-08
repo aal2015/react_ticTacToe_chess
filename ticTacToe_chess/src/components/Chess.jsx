@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
+import ResetGameModal from './GameResetModal';
 import { pieceNotation, generateMoveNotation } from './moveNotation';
 import {
     isMoveValid,
@@ -64,14 +65,32 @@ const Chess = () => {
         setGameResult(null);
     };
 
+    const onClickResetButton = () => {
+        const isStandardGame = JSON.stringify(initBoard) === JSON.stringify(board);
+        if (!isStandardGame) {
+            setShowResetModal(true);
+        } else {
+            resetGame();
+        }
+    }
+
     const [showPromotionModal, setShowPromotionModal] =
         useState(false);
-
     const [promotionData, setPromotionData] =
         useState(null);
+    const [showResetModal, setShowResetModal] = useState(false);
 
     const closeGameOverModal = () => {
         setGameResult(null);
+    };
+
+    const confirmReset = () => {
+        resetGame();
+        setShowResetModal(false);
+    };
+
+    const cancelReset = () => {
+        setShowResetModal(false);
     };
 
     const handlePromotionHelper = (promotedPiece) => {
@@ -659,7 +678,7 @@ const Chess = () => {
             >
                 <ChessSideBar
                     moveHistory={moveHistory}
-                    onReset={resetGame}
+                    onReset={onClickResetButton}
                     playerColor={playerColor}
                     onColorChange={setPlayerColor}
                 />
@@ -680,6 +699,11 @@ const Chess = () => {
                 message={gameResult?.message}
                 onPlayAgain={resetGame}
                 onClose={closeGameOverModal}
+            />
+            <ResetGameModal
+                isOpen={showResetModal}
+                onConfirm={confirmReset}
+                onCancel={cancelReset}
             />
         </div>
     );
