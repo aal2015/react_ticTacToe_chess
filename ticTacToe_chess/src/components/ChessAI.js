@@ -12,7 +12,7 @@ const chessPiecePoints = {
     k: 0
 };
 
-class ChessMinMaxAlgo {
+export class ChessMinMaxAlgo {
     constructor() { }
 
     evaluateBoard(board) {
@@ -56,7 +56,7 @@ class ChessMinMaxAlgo {
         }
 
         if (curDepth == MaxDepth) {
-
+            return this.evaluateBoard(board);
         }
 
     }
