@@ -1,3 +1,62 @@
+export const generateMovesForPiece = (
+    board,
+    piece,
+    row,
+    col,
+    pieceColor,
+    castleState = null,
+    enPassantState = null,
+    moveCount = 0
+) => {
+    const selected = [row, col];
+
+    switch (piece[1]) {
+
+        case "r":
+            return generateRookMoves(
+                board,
+                selected
+            );
+
+        case "b":
+            return generateBishopMoves(
+                board,
+                selected
+            );
+
+        case "q":
+            return generateQueenMoves(
+                board,
+                selected
+            );
+
+        case "n":
+            return generateKnightMoves(
+                board,
+                selected
+            );
+
+        case "k":
+            return generateKingMoves(
+                board,
+                selected,
+                castleState
+            );
+
+        case "p":
+            return generatePawnMoves(
+                board,
+                selected,
+                pieceColor,
+                enPassantState,
+                moveCount
+            );
+
+        default:
+            return [];
+    }
+};
+
 const checkPossibleMoveCondition = (
     board,
     movingPieceColor,
@@ -201,6 +260,7 @@ export const wouldKingBeInCheckAfterMove = (
         enemyColor
     );
 };
+
 
 const generateSlidingMoves = (
     board,

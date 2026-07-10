@@ -1,6 +1,7 @@
 import {
     isCheckMate,
-    isStaleMate
+    isStaleMate,
+    generateMovesForPiece
 } from './moveValidCheck';
 
 const chessPiecePoints = {
@@ -59,5 +60,77 @@ export class ChessMinMaxAlgo {
             return this.evaluateBoard(board);
         }
 
+        //// steps:
+        // find the color piece
+        // generate all possible moves
+        // Try every move on clone board
+        // call minmax function
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                // find the color piece
+                const piece = board[row][col];
+                if (piece === '') {
+                    continue;
+                }
+
+                const pieceCode =
+                    pieceColor === "white"
+                        ? "w"
+                        : "b";
+
+                if (piece[0] !== pieceCode) {
+                    continue;
+                }
+
+                // generate all possible moves
+                const possibleMoves = generateMovesForPiece(
+                    board, piece, row, col, pieceColor, castleState, enPassantState,
+                    moveCount
+                )
+
+                // Try every move on clone board
+                for (const [moveRow, moveCol] of possibleMoves) {
+                    const boardClone =
+                        board.map(
+                            boardRow => [...boardRow]
+                        );
+
+                    // EN PASSANT CAPTURE
+                    if (
+                        piece[1] === 'p' &&
+                        moveCol !== col &&
+                        board[moveRow][moveCol] === ''
+                    ) {
+                        const capturedPawnRow =
+                            pieceColor === 'white'
+                                ? moveRow + 1
+                                : moveRow - 1;
+
+                        boardClone[
+                            capturedPawnRow
+                        ][
+                            moveCol
+                        ] = '';
+                    }
+
+                    // simulate move
+                    boardClone[moveRow][moveCol] =
+                        piece;
+                    boardClone[row][col] = '';
+
+                    const nextColor =
+                        pieceColor === "white"
+                            ? "black"
+                            : "white";
+
+                    // recursive call
+                    const score = this.minMax(
+                        boardClone, nextColor, enPassantState, castleState, moveCount,
+                        curDepth + 1, MaxDepth
+                    )
+                }
+
+            }
+        }
     }
 }
