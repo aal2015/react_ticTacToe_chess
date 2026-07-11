@@ -1,7 +1,8 @@
 import {
     isCheckMate,
     isStaleMate,
-    generateMovesForPiece
+    generateMovesForPiece,
+    wouldKingBeInCheckAfterMove
 } from './moveValidCheck';
 
 const chessPiecePoints = {
@@ -43,9 +44,15 @@ export class ChessMinMaxAlgo {
             enPassantState, moveCount + 1
         )) {
             if (pieceColor === "white") { // black wins
-                return -1000;
+                return {
+                    score: -1000 + curDepth,
+                    move: null
+                };
             } else if (pieceColor === "black") { // white wins
-                return 1000;
+                return {
+                    score: 1000 - curDepth,
+                    move: null
+                };
             }
         };
 
@@ -53,12 +60,27 @@ export class ChessMinMaxAlgo {
             board, pieceColor,
             enPassantState, moveCount + 1
         )) {
-            return 0;
+            return {
+                score: 0,
+                move: null
+            };
         }
 
         if (curDepth == MaxDepth) {
-            return this.evaluateBoard(board);
+            return {
+                score: this.evaluateBoard(board),
+                move: null
+            };
         }
+
+        let bestScore;
+        if (pieceColor === "white") {
+            bestScore = -Infinity;
+        } else {
+            bestScore = Infinity;
+        }
+
+        let bestMove = null;
 
         //// steps:
         // find the color piece
@@ -118,19 +140,181 @@ export class ChessMinMaxAlgo {
                         piece;
                     boardClone[row][col] = '';
 
+                    // pawn promotion
+                    let promotionPiece = null;
+                    if (
+                        piece[1] === "p" &&
+                        (
+                            (pieceColor === "white" && moveRow === 0) ||
+                            (pieceColor === "black" && moveRow === 7)
+                        )
+                    ) {
+                        // Always promote to queen
+                        boardClone[moveRow][moveCol] =
+                            piece[0] + "q";
+                        promotionPiece = "q";
+                    }
+
+                    // update en passant
+                    let nextEnPassantState = null;
+                    if (
+                        piece[1] === "p" &&
+                        Math.abs(moveRow - row) === 2
+                    ) {
+
+                        nextEnPassantState = {
+                            row: moveRow,
+                            col: moveCol,
+                            pieceColor,
+                            moveCount: moveCount + 1
+                        };
+                    }
+
+                    // update castle state
+                    const newCastleState = {
+                        ...castleState
+                    };
+
+                    if (piece === "wk") {
+                        newCastleState.whiteKingMoved = true;
+                    }
+
+                    if (piece === "bk") {
+                        newCastleState.blackKingMoved = true;
+                    }
+
+                    if (
+                        piece === "wr" &&
+                        row === 7 &&
+                        col === 0
+                    ) {
+                        newCastleState.whiteLeftRookMoved = true;
+                    }
+
+                    if (
+                        piece === "wr" &&
+                        row === 7 &&
+                        col === 7
+                    ) {
+                        newCastleState.whiteRightRookMoved = true;
+                    }
+
+                    if (
+                        piece === "br" &&
+                        row === 0 &&
+                        col === 0
+                    ) {
+                        newCastleState.blackLeftRookMoved = true;
+                    }
+
+                    if (
+                        piece === "br" &&
+                        row === 0 &&
+                        col === 7
+                    ) {
+                        newCastleState.blackRightRookMoved = true;
+                    }
+
+                    // castle movements (rook)
+
+                    // white king side
+                    if (
+                        piece === "wk" &&
+                        col === 4 &&
+                        moveCol === 6
+                    ) {
+                        boardClone[7][5] = "wr";
+                        boardClone[7][7] = "";
+                    }
+
+                    // white queen side
+                    if (
+                        piece === "wk" &&
+                        col === 4 &&
+                        moveCol === 2
+                    ) {
+
+                        boardClone[7][3] = 'wr';
+                        boardClone[7][0] = '';
+                    }
+
+                    // black king side
+                    if (
+                        piece === "bk" &&
+                        col === 4 &&
+                        moveCol === 6
+                    ) {
+                        boardClone[0][5] = "br";
+                        boardClone[0][7] = "";
+                    }
+
+                    // black queen side
+                    if (
+                        piece === "bk" &&
+                        col === 4 &&
+                        moveCol === 2
+                    ) {
+                        boardClone[0][3] = "br";
+                        boardClone[0][0] = "";
+                    }
+
+                    // check for illegal self-check moves
+                    if (
+                        wouldKingBeInCheckAfterMove(
+                            boardClone,
+                            pieceColor
+                        )
+                    ) {
+                        continue;
+                    }
+
+                    // next player
                     const nextColor =
                         pieceColor === "white"
                             ? "black"
                             : "white";
 
                     // recursive call
-                    const score = this.minMax(
-                        boardClone, nextColor, enPassantState, castleState, moveCount,
-                        curDepth + 1, MaxDepth
-                    )
+                    const score =
+                        this.minMax(
+                            boardClone,
+                            nextColor,
+                            nextEnPassantState,
+                            newCastleState,
+                            moveCount + 1,
+                            curDepth + 1,
+                            MaxDepth
+                        );
+
+                    // update best score
+                    if (pieceColor === "white") {
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMove = {
+                                from: [row, col],
+                                to: [moveRow, moveCol],
+                                promotion: promotionPiece
+                            };
+                        }
+                    }
+                    else {
+                        if (score < bestScore) {
+                            bestScore = score;
+                            bestMove = {
+                                from: [row, col],
+                                to: [moveRow, moveCol],
+                                promotion: promotionPiece
+                            };
+                        }
+                    }
                 }
 
             }
         }
+
+        return {
+            score: bestScore,
+            move: bestMove
+        };
     }
 }

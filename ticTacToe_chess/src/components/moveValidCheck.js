@@ -988,11 +988,7 @@ export const isCheckMate = (
                                 ? moveRow + 1
                                 : moveRow - 1;
 
-                        boardClone[
-                            capturedPawnRow
-                        ][
-                            moveCol
-                        ] = '';
+                        boardClone[capturedPawnRow][moveCol] = '';
                     }
 
                     // simulate move
