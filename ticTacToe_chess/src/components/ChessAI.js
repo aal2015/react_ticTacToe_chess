@@ -128,16 +128,11 @@ export class ChessMinMaxAlgo {
                                 ? moveRow + 1
                                 : moveRow - 1;
 
-                        boardClone[
-                            capturedPawnRow
-                        ][
-                            moveCol
-                        ] = '';
+                        boardClone[capturedPawnRow][moveCol] = '';
                     }
 
                     // simulate move
-                    boardClone[moveRow][moveCol] =
-                        piece;
+                    boardClone[moveRow][moveCol] = piece;
                     boardClone[row][col] = '';
 
                     // pawn promotion
@@ -275,7 +270,7 @@ export class ChessMinMaxAlgo {
                             : "white";
 
                     // recursive call
-                    const score =
+                    const result =
                         this.minMax(
                             boardClone,
                             nextColor,
@@ -285,6 +280,8 @@ export class ChessMinMaxAlgo {
                             curDepth + 1,
                             MaxDepth
                         );
+
+                    const score = result.score;
 
                     // update best score
                     if (pieceColor === "white") {

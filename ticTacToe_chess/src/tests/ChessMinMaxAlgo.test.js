@@ -199,4 +199,84 @@ describe("minMax terminal states", () => {
         });
     });
 
+    it("prefers normal pawn capture when it wins material", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White pawn
+        board[3][3] = "wp";
+
+        // Black pawn that can be captured
+        board[2][4] = "bp";
+
+        const result = algo.minMax(
+            board,
+            "white",
+            null, // no en passant
+            {},
+            0,
+            0,
+            1
+        );
+
+        expect(result.move).toEqual({
+            from: [3, 3],
+            to: [2, 4],
+            promotion: null
+        });
+
+        expect(result.score).toBe(1);
+    });
+
+    it("prefers en passant capture when it wins material", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White pawn on d5
+        board[3][3] = "wp";
+
+        // Black pawn on e5
+        board[3][4] = "bp";
+
+        const castleState = {
+            whiteKingMoved: false,
+            blackKingMoved: false,
+            whiteLeftRookMoved: false,
+            whiteRightRookMoved: false,
+            blackLeftRookMoved: false,
+            blackRightRookMoved: false
+        };
+
+        const enPassantState = {
+            row: 3,
+            col: 4,
+            pieceColor: "black",
+            moveCount: 1
+        };
+
+        const result = algo.minMax(
+            board,
+            "white",
+            enPassantState,
+            castleState,
+            2,  
+            0,
+            1
+        );
+
+        expect(result.move).toEqual({
+            from: [3, 3],
+            to: [2, 4],
+            promotion: null
+        });
+
+        expect(result.score).toBe(1);
+    });
+
 });
