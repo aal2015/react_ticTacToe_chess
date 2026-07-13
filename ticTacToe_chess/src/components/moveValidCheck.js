@@ -6,7 +6,8 @@ export const generateMovesForPiece = (
     pieceColor,
     castleState = null,
     enPassantState = null,
-    moveCount = 0
+    moveCount = 0,
+    attackOnly = false
 ) => {
     const selected = [row, col];
 
@@ -40,7 +41,8 @@ export const generateMovesForPiece = (
             return generateKingMoves(
                 board,
                 selected,
-                castleState
+                castleState,
+                attackOnly
             );
 
         case "p":
@@ -115,78 +117,17 @@ const isSquareUnderAttack = (
                 continue;
             }
 
-            const pieceType = piece[1];
-
-            let possibleMoves = [];
-
-            switch (pieceType) {
-
-                case 'r':
-                    possibleMoves =
-                        generateRookMoves(
-                            board,
-                            [row, col]
-                        );
-                    break;
-
-                case 'b':
-                    possibleMoves =
-                        generateBishopMoves(
-                            board,
-                            [row, col]
-                        );
-                    break;
-
-                case 'q':
-                    possibleMoves =
-                        generateQueenMoves(
-                            board,
-                            [row, col]
-                        );
-                    break;
-
-                case 'n':
-                    possibleMoves =
-                        generateKnightMoves(
-                            board,
-                            [row, col]
-                        );
-                    break;
-
-                case 'k':
-                    const kingDirections = [
-                        [-1, -1],
-                        [-1, 0],
-                        [-1, 1],
-                        [0, -1],
-                        [0, 1],
-                        [1, -1],
-                        [1, 0],
-                        [1, 1]
-                    ];
-
-                    possibleMoves = kingDirections.map(
-                        ([rowOffset, colOffset]) => [
-                            row + rowOffset,
-                            col + colOffset
-                        ]
-                    );
-
-                    break;
-
-                case 'p':
-                    const pawnDirection =
-                        pieceColor === 'white'
-                            ? -1
-                            : 1;
-
-                    possibleMoves = [
-                        [row + pawnDirection, col - 1],
-                        [row + pawnDirection, col + 1]
-                    ];
-
-                    break
-            }
+            const possibleMoves = generateMovesForPiece(
+                board,
+                piece,
+                row,
+                col,
+                pieceColor,
+                null,
+                null,
+                0,
+                true
+            )
 
             const attacking =
                 possibleMoves.some(
@@ -195,7 +136,10 @@ const isSquareUnderAttack = (
                         moveCol === targetCol
                 );
 
+
             if (attacking) {
+                console.log(piece, "attacks", targetRow, targetCol);
+
                 return true;
             }
         }
@@ -428,7 +372,8 @@ const generateKnightMoves = (
 const generateKingMoves = (
     board,
     selected,
-    castleState
+    castleState,
+    attackOnly = false
 ) => {
 
     const curRow = selected[0];
@@ -474,6 +419,10 @@ const generateKingMoves = (
         if (append_flag) {
             possibleMoves.push([row, col]);
         }
+    }
+
+    if (attackOnly) {
+        return possibleMoves;
     }
 
     const enemyColor =
@@ -813,7 +762,6 @@ export const isCheckMate = (
             : "white";
 
     // Find king
-
     const kingPosition =
         findPlayerKingPosition(
             board,
@@ -821,13 +769,11 @@ export const isCheckMate = (
         );
 
     // King missing
-
     if (!kingPosition) {
         return false;
     }
 
     // Is king currently checked?
-
     const underAttack =
         isSquareUnderAttack(
             board,
@@ -841,7 +787,6 @@ export const isCheckMate = (
     }
 
     // Disable castling
-
     const castleState = {
         whiteKingMoved: true,
         blackKingMoved: true,
@@ -854,7 +799,6 @@ export const isCheckMate = (
     };
 
     // Generate king moves
-
     const possibleMoves =
         generateKingMoves(
             board,
@@ -863,16 +807,13 @@ export const isCheckMate = (
         );
 
     // Test every king move
-
     for (const [row, col] of possibleMoves) {
-
         const boardClone =
             board.map(
                 boardRow => [...boardRow]
             );
 
         // simulate king move
-
         boardClone[row][col] =
             boardClone[
             kingPosition[0]
@@ -887,7 +828,6 @@ export const isCheckMate = (
         ] = '';
 
         // if king survives
-
         if (
             !wouldKingBeInCheckAfterMove(
                 boardClone,
@@ -899,75 +839,32 @@ export const isCheckMate = (
         }
     }
 
-
     // Check if another piece can save the king
-
     for (let row = 0; row < 8; row++) {
         for (let col = 0; col < 8; col++) {
             const piece = board[row][col];
+            const pieceColor =
+                piece[0] === "w"
+                    ? "white"
+                    : "black";
 
             // friendly non-king piece
-
             if (
                 piece !== '' &&
                 piece[0] === pieceColorCode &&
                 piece[1] !== 'k'
             ) {
-
-                const selected = [row, col];
-
-                let possibleMoves = [];
-
                 const pieceType = piece[1];
 
-                switch (pieceType) {
-
-                    case 'r':
-                        possibleMoves =
-                            generateRookMoves(
-                                board,
-                                selected
-                            );
-                        break;
-
-                    case 'b':
-                        possibleMoves =
-                            generateBishopMoves(
-                                board,
-                                selected
-                            );
-                        break;
-
-                    case 'q':
-                        possibleMoves =
-                            generateQueenMoves(
-                                board,
-                                selected
-                            );
-                        break;
-
-                    case 'n':
-                        possibleMoves =
-                            generateKnightMoves(
-                                board,
-                                selected
-                            );
-                        break;
-
-                    case 'p':
-                        possibleMoves =
-                            generatePawnMoves(
-                                board,
-                                selected,
-                                color,
-                                enPassantState,
-                                moveCount
-                            );
-                        break;
-                }
+                const possibleMoves = generateMovesForPiece(
+                    board,
+                    piece,
+                    row,
+                    col,
+                    pieceColor
+                );
 
                 // Try every move
-
                 for (const [moveRow, moveCol] of possibleMoves) {
 
                     const boardClone =
@@ -976,7 +873,6 @@ export const isCheckMate = (
                         );
 
                     // EN PASSANT CAPTURE
-
                     if (
                         pieceType === 'p' &&
                         moveCol !== col &&
@@ -992,20 +888,17 @@ export const isCheckMate = (
                     }
 
                     // simulate move
-
                     boardClone[moveRow][moveCol] =
                         piece;
                     boardClone[row][col] = '';
 
                     // if check removed
-
                     if (
                         !wouldKingBeInCheckAfterMove(
                             boardClone,
                             color
                         )
                     ) {
-
                         return false;
                     }
                 }
@@ -1047,50 +940,20 @@ const hasAnyLegalMove = (
                 continue;
             }
 
-            let moves = [];
+            const pieceColor =
+                piece[0] === 'w'
+                    ? 'white'
+                    : 'black';
 
-            switch (piece[1]) {
-                case "k":
-                    moves = generateKingMoves(
-                        board,
-                        [row, col],
-                        castleState
-                    );
-                    break;
-                case "q":
-                    moves = generateQueenMoves(
-                        board,
-                        [row, col]
-                    );
-                    break;
-                case "r":
-                    moves = generateRookMoves(
-                        board,
-                        [row, col]
-                    );
-                    break;
-                case "b":
-                    moves = generateBishopMoves(
-                        board,
-                        [row, col]
-                    );
-                    break;
-                case "n":
-                    moves = generateKnightMoves(
-                        board,
-                        [row, col]
-                    );
-                    break;
-                case "p":
-                    moves = generatePawnMoves(
-                        board,
-                        [row, col],
-                        color,
-                        enPassantState,
-                        moveCount
-                    );
-                    break;
-            }
+            const moves = generateMovesForPiece(
+                board,
+                piece,
+                row,
+                col,
+                pieceColor,
+                null,
+                enPassantState
+            );
 
             for (const [newRow, newCol] of moves) {
                 const clone =
@@ -1238,72 +1101,22 @@ export const isMoveValid = (
             ? 'white'
             : 'black';
 
-    const piece =
-        board[selected[0]][selected[1]][1];
+    const piece = board[selected[0]][selected[1]];
 
     if (pieceColor !== turn) {
         return false;
     }
 
-    let possibleMoves = [];
-
-    switch (piece) {
-
-        case 'r':
-            possibleMoves =
-                generateRookMoves(
-                    board,
-                    selected
-                );
-            break;
-
-        case 'b':
-            possibleMoves =
-                generateBishopMoves(
-                    board,
-                    selected
-                );
-            break;
-
-        case 'q':
-            possibleMoves =
-                generateQueenMoves(
-                    board,
-                    selected
-                );
-            break;
-
-        case 'n':
-            possibleMoves =
-                generateKnightMoves(
-                    board,
-                    selected
-                );
-            break;
-
-        case 'k':
-            possibleMoves =
-                generateKingMoves(
-                    board,
-                    selected,
-                    castleState
-                );
-            break;
-
-        case 'p':
-            possibleMoves =
-                generatePawnMoves(
-                    board,
-                    selected,
-                    pieceColor,
-                    enPassantState,
-                    moveCount
-                );
-            break;
-
-        default:
-            return false;
-    }
+    const possibleMoves = generateMovesForPiece(
+        board,
+        piece,
+        selected[0],
+        selected[1],
+        pieceColor,
+        castleState,
+        enPassantState,
+        moveCount
+    );
 
     return possibleMoves.some(
         ([moveRow, moveCol]) =>
