@@ -8,7 +8,8 @@ import {
     isMoveValid,
     wouldKingBeInCheckAfterMove,
     isCheckMate,
-    isStaleMate
+    isStaleMate,
+    handleCastleMove
 } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
@@ -203,20 +204,26 @@ const Chess = () => {
                 // CLONE CASTLE STATE
                 // =========================
 
-                const newCastleState = {
-                    ...castleState
-                };
-
                 const movingPiece =
                     board[selected[0]][selected[1]];
+
+                const {
+                    castleState: newCastleState,
+                    isCastleKingSide,
+                    isCastleQueenSide
+                } = handleCastleMove(
+                    boardClone,
+                    castleState,
+                    movingPiece,
+                    selected[0],
+                    selected[1],
+                    row,
+                    col
+                );
 
                 // =========================
                 // MOVE FLAGS
                 // =========================
-
-                let isCastleKingSide = false;
-
-                let isCastleQueenSide = false;
 
                 const isCapture =
                     board[row][col] !== '';
@@ -226,127 +233,6 @@ const Chess = () => {
                     col !== selected[1] &&
                     board[row][col] === '';
 
-                // =========================
-                // UPDATE CASTLING STATE
-                // =========================
-
-                if (movingPiece === 'wk') {
-
-                    newCastleState.whiteKingMoved = true;
-                }
-
-                if (movingPiece === 'bk') {
-
-                    newCastleState.blackKingMoved = true;
-                }
-
-                // white rooks
-
-                if (
-                    movingPiece === 'wr' &&
-                    selected[0] === 7 &&
-                    selected[1] === 0
-                ) {
-
-                    newCastleState.whiteLeftRookMoved = true;
-                }
-
-                if (
-                    movingPiece === 'wr' &&
-                    selected[0] === 7 &&
-                    selected[1] === 7
-                ) {
-
-                    newCastleState.whiteRightRookMoved = true;
-                }
-
-                // black rooks
-
-                if (
-                    movingPiece === 'br' &&
-                    selected[0] === 0 &&
-                    selected[1] === 0
-                ) {
-
-                    newCastleState.blackLeftRookMoved = true;
-                }
-
-                if (
-                    movingPiece === 'br' &&
-                    selected[0] === 0 &&
-                    selected[1] === 7
-                ) {
-
-                    newCastleState.blackRightRookMoved = true;
-                }
-
-                // =========================
-                // CASTLING MOVEMENT
-                // =========================
-
-                // white king side
-
-                if (
-                    movingPiece === 'wk' &&
-                    selected[0] === 7 &&
-                    selected[1] === 4 &&
-                    row === 7 &&
-                    col === 6
-                ) {
-
-                    boardClone[7][5] = 'wr';
-                    boardClone[7][7] = '';
-
-                    isCastleKingSide = true;
-                }
-
-                // white queen side
-
-                if (
-                    movingPiece === 'wk' &&
-                    selected[0] === 7 &&
-                    selected[1] === 4 &&
-                    row === 7 &&
-                    col === 2
-                ) {
-
-                    boardClone[7][3] = 'wr';
-                    boardClone[7][0] = '';
-
-                    isCastleQueenSide = true;
-                }
-
-                // black king side
-
-                if (
-                    movingPiece === 'bk' &&
-                    selected[0] === 0 &&
-                    selected[1] === 4 &&
-                    row === 0 &&
-                    col === 6
-                ) {
-
-                    boardClone[0][5] = 'br';
-                    boardClone[0][7] = '';
-
-                    isCastleKingSide = true;
-                }
-
-                // black queen side
-
-                if (
-                    movingPiece === 'bk' &&
-                    selected[0] === 0 &&
-                    selected[1] === 4 &&
-                    row === 0 &&
-                    col === 2
-                ) {
-
-                    boardClone[0][3] = 'br';
-                    boardClone[0][0] = '';
-
-                    isCastleQueenSide = true;
-                }
 
                 // =========================
                 // EN PASSANT CAPTURE

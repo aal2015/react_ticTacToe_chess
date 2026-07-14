@@ -744,6 +744,122 @@ const generatePawnMoves = (
     return possibleMoves;
 };
 
+export const handleCastleMove = (
+    board,
+    castleState,
+    piece,
+    fromRow,
+    fromCol,
+    toRow,
+    toCol
+) => {
+
+    const newCastleState = {
+        ...castleState
+    };
+
+    let isCastleKingSide = false;
+    let isCastleQueenSide = false;
+
+    // =========================
+    // UPDATE CASTLING RIGHTS
+    // =========================
+
+    switch (piece) {
+        case "wk":
+            newCastleState.whiteKingMoved = true;
+            break;
+
+        case "bk":
+            newCastleState.blackKingMoved = true;
+            break;
+
+        case "wr":
+            if (fromRow === 7 && fromCol === 0) {
+                newCastleState.whiteLeftRookMoved = true;
+            }
+
+            if (fromRow === 7 && fromCol === 7) {
+                newCastleState.whiteRightRookMoved = true;
+            }
+            break;
+
+        case "br":
+            if (fromRow === 0 && fromCol === 0) {
+                newCastleState.blackLeftRookMoved = true;
+            }
+
+            if (fromRow === 0 && fromCol === 7) {
+                newCastleState.blackRightRookMoved = true;
+            }
+            break;
+    }
+
+    // =========================
+    // CASTLING MOVE
+    // =========================
+
+    if (piece === "wk") {
+
+        if (
+            fromRow === 7 &&
+            fromCol === 4 &&
+            toRow === 7 &&
+            toCol === 6
+        ) {
+            board[7][5] = "wr";
+            board[7][7] = "";
+
+            isCastleKingSide = true;
+        }
+
+        if (
+            fromRow === 7 &&
+            fromCol === 4 &&
+            toRow === 7 &&
+            toCol === 2
+        ) {
+            board[7][3] = "wr";
+            board[7][0] = "";
+
+            isCastleQueenSide = true;
+        }
+    }
+
+    if (piece === "bk") {
+
+        if (
+            fromRow === 0 &&
+            fromCol === 4 &&
+            toRow === 0 &&
+            toCol === 6
+        ) {
+            board[0][5] = "br";
+            board[0][7] = "";
+
+            isCastleKingSide = true;
+        }
+
+        if (
+            fromRow === 0 &&
+            fromCol === 4 &&
+            toRow === 0 &&
+            toCol === 2
+        ) {
+            board[0][3] = "br";
+            board[0][0] = "";
+
+            isCastleQueenSide = true;
+        }
+    }
+
+    return {
+        castleState: newCastleState,
+        isCastleKingSide,
+        isCastleQueenSide
+    };
+};
+
 export const isCheckMate = (
     board,
     color,
