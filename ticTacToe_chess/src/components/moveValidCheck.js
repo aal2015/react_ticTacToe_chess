@@ -860,6 +860,35 @@ export const handleCastleMove = (
     };
 };
 
+export const handleEnPassant = (
+    board,
+    piece,
+    pieceColor,
+    fromCol,
+    toRow,
+    toCol
+) => {
+
+    const isEnPassant =
+        piece[1] === "p" &&
+        toCol !== fromCol &&
+        board[toRow][toCol] === "";
+
+    if (isEnPassant) {
+
+        const capturedPawnRow =
+            pieceColor === "white"
+                ? toRow + 1
+                : toRow - 1;
+
+        board[capturedPawnRow][toCol] = "";
+    }
+
+    return {
+        isEnPassant
+    };
+};
+
 export const isCheckMate = (
     board,
     color,

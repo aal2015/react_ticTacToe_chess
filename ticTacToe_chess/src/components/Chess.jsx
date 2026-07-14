@@ -9,7 +9,8 @@ import {
     wouldKingBeInCheckAfterMove,
     isCheckMate,
     isStaleMate,
-    handleCastleMove
+    handleCastleMove,
+    handleEnPassant
 } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
@@ -200,13 +201,12 @@ const Chess = () => {
                         (boardRow) => [...boardRow]
                     );
 
-                // =========================
-                // CLONE CASTLE STATE
-                // =========================
-
                 const movingPiece =
                     board[selected[0]][selected[1]];
 
+                // =========================
+                // CHECK CASTLE
+                // =========================
                 const {
                     castleState: newCastleState,
                     isCastleKingSide,
@@ -228,32 +228,23 @@ const Chess = () => {
                 const isCapture =
                     board[row][col] !== '';
 
-                const isEnPassant =
-                    movingPiece[1] === 'p' &&
-                    col !== selected[1] &&
-                    board[row][col] === '';
-
-
                 // =========================
                 // EN PASSANT CAPTURE
                 // =========================
-
-                if (isEnPassant) {
-
-                    const capturedPawnRow =
-                        turn === 'white'
-                            ? row + 1
-                            : row - 1;
-
-                    boardClone[capturedPawnRow][col] = '';
-                }
+                const { isEnPassant } = handleEnPassant(
+                    boardClone,
+                    movingPiece,
+                    turn,
+                    selected[1],
+                    row,
+                    col
+                );
 
                 // =========================
                 // MOVE PIECE
                 // =========================
 
                 boardClone[row][col] = movingPiece;
-
                 boardClone[selected[0]][selected[1]] = '';
 
                 // =========================
@@ -464,12 +455,9 @@ const Chess = () => {
 
                 setEnPassantState(nextEnPassantState);
 
-
-
                 // =========================
                 // NEXT TURN
                 // =========================
-
                 setTurn(
                     turn === 'white'
                         ? 'black'

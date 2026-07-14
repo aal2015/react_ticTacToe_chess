@@ -3,7 +3,8 @@ import {
     isStaleMate,
     generateMovesForPiece,
     wouldKingBeInCheckAfterMove,
-    handleCastleMove
+    handleCastleMove,
+    handleEnPassant
 } from './moveValidCheck';
 
 const chessPiecePoints = {
@@ -119,18 +120,14 @@ export class ChessMinMaxAlgo {
                         );
 
                     // EN PASSANT CAPTURE
-                    if (
-                        piece[1] === 'p' &&
-                        moveCol !== col &&
-                        board[moveRow][moveCol] === ''
-                    ) {
-                        const capturedPawnRow =
-                            pieceColor === 'white'
-                                ? moveRow + 1
-                                : moveRow - 1;
-
-                        boardClone[capturedPawnRow][moveCol] = '';
-                    }
+                    const { isEnPassant } = handleEnPassant(
+                        boardClone,
+                        piece,
+                        pieceColor,
+                        col,
+                        moveRow,
+                        moveCol
+                    );
 
                     // simulate move
                     boardClone[moveRow][moveCol] = piece;
