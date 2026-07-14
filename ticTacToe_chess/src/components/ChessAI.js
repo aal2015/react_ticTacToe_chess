@@ -2,7 +2,8 @@ import {
     isCheckMate,
     isStaleMate,
     generateMovesForPiece,
-    wouldKingBeInCheckAfterMove
+    wouldKingBeInCheckAfterMove,
+    handleCastleMove
 } from './moveValidCheck';
 
 const chessPiecePoints = {
@@ -165,93 +166,19 @@ export class ChessMinMaxAlgo {
                         };
                     }
 
-                    // update castle state
-                    const newCastleState = {
-                        ...castleState
-                    };
-
-                    if (piece === "wk") {
-                        newCastleState.whiteKingMoved = true;
-                    }
-
-                    if (piece === "bk") {
-                        newCastleState.blackKingMoved = true;
-                    }
-
-                    if (
-                        piece === "wr" &&
-                        row === 7 &&
-                        col === 0
-                    ) {
-                        newCastleState.whiteLeftRookMoved = true;
-                    }
-
-                    if (
-                        piece === "wr" &&
-                        row === 7 &&
-                        col === 7
-                    ) {
-                        newCastleState.whiteRightRookMoved = true;
-                    }
-
-                    if (
-                        piece === "br" &&
-                        row === 0 &&
-                        col === 0
-                    ) {
-                        newCastleState.blackLeftRookMoved = true;
-                    }
-
-                    if (
-                        piece === "br" &&
-                        row === 0 &&
-                        col === 7
-                    ) {
-                        newCastleState.blackRightRookMoved = true;
-                    }
-
-                    // castle movements (rook)
-
-                    // white king side
-                    if (
-                        piece === "wk" &&
-                        col === 4 &&
-                        moveCol === 6
-                    ) {
-                        boardClone[7][5] = "wr";
-                        boardClone[7][7] = "";
-                    }
-
-                    // white queen side
-                    if (
-                        piece === "wk" &&
-                        col === 4 &&
-                        moveCol === 2
-                    ) {
-
-                        boardClone[7][3] = 'wr';
-                        boardClone[7][0] = '';
-                    }
-
-                    // black king side
-                    if (
-                        piece === "bk" &&
-                        col === 4 &&
-                        moveCol === 6
-                    ) {
-                        boardClone[0][5] = "br";
-                        boardClone[0][7] = "";
-                    }
-
-                    // black queen side
-                    if (
-                        piece === "bk" &&
-                        col === 4 &&
-                        moveCol === 2
-                    ) {
-                        boardClone[0][3] = "br";
-                        boardClone[0][0] = "";
-                    }
+                    const {
+                        castleState: newCastleState,
+                        isCastleKingSide,
+                        isCastleQueenSide
+                    } = handleCastleMove(
+                        boardClone,
+                        castleState,
+                        piece,
+                        row,
+                        col,
+                        moveRow,
+                        moveCol
+                    );
 
                     // check for illegal self-check moves
                     if (

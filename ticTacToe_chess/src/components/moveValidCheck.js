@@ -1067,7 +1067,7 @@ const hasAnyLegalMove = (
                 row,
                 col,
                 pieceColor,
-                null,
+                castleState,
                 enPassantState
             );
 
