@@ -3,7 +3,7 @@ import {
     isCheckMate,
     isStaleMate
 } from './moveValidCheck';
-import { generateMoveNotation } from './moveNotation';
+import { generateMoveNotation } from './chessUtil';
 
 export const handlePromotion = (
     boardClone,

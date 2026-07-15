@@ -6,17 +6,7 @@ import ResetGameModal from './GameResetModal';
 import { processPlayerMove } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
-
-const initBoard = [
-    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
-    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['', '', '', '', '', '', '', ''],
-    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
-];
+import { initBoard, getStatusInfo } from './chessUtil';
 
 const Chess = () => {
     const [board, setBoard] = useState(initBoard);
@@ -138,36 +128,16 @@ const Chess = () => {
         if (checkMateState) {
             setGameResult({
                 title: "Checkmate",
-                message: `${turn} wins!`
+                message: `${turn} wins!`,
+                winner: turn
             });
+            setWinner(turn);
         } else if (stalemateState) {
             setGameResult({
                 title: "Stalemate",
                 message: "The game ends in a draw."
             });
         }
-    };
-
-    const getStatusText = () => {
-
-        if (winner) {
-
-            const winnerType =
-                winner === playerColor
-                    ? "You"
-                    : "AI";
-
-            return `${winner} wins! (${winnerType})`;
-        }
-
-
-        const turnType =
-            turn === playerColor
-                ? "you"
-                : "AI";
-
-
-        return `${turn}'s turn (${turnType})`;
     };
 
     const pieceSelect = (row, col) => {
@@ -213,8 +183,10 @@ const Chess = () => {
             if (result.game.checkmate) {
                 setGameResult({
                     title: "Checkmate",
-                    message: `${turn} wins!`
+                    message: `${turn} wins!`,
+                    winner: turn
                 });
+                setWinner(turn);
             }
 
             if (result.game.stalemate) {
@@ -284,6 +256,12 @@ const Chess = () => {
         setSelected([row, col]);
     };
 
+    const status = getStatusInfo(
+        turn,
+        gameResult,
+        playerColor
+    );
+
     return (
         <div
             className="
@@ -313,15 +291,12 @@ const Chess = () => {
 
                 <p
                     className={`
-                                    text-2xl
-                                    font-bold
-                                    ${(turn === 'white' || winner)
-                            ? 'text-white'
-                            : 'text-black'
-                        }
-                             `}
+                        text-2xl
+                        font-bold
+                        ${status.textColor}
+                    `}
                 >
-                    {getStatusText()}
+                    {status.text}
                 </p>
 
                 <ChessBoard

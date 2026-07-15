@@ -1,11 +1,22 @@
+export const initBoard = [
+    ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+    ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+    ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+];
+
 export const pieceNotation = {
-        p: '',
-        r: 'R',
-        n: 'N',
-        b: 'B',
-        q: 'Q',
-        k: 'K'
-    };
+    p: '',
+    r: 'R',
+    n: 'N',
+    b: 'B',
+    q: 'Q',
+    k: 'K'
+};
 
 export const generateMoveNotation = ({
     movingPiece,
@@ -115,4 +126,45 @@ export const generateMoveNotation = ({
     }
 
     return notation;
+};
+
+export const getStatusInfo = (
+    turn,
+    gameResult,
+    playerColor
+) => {
+
+    if (gameResult?.title === "Checkmate") {
+
+        const winnerType =
+            gameResult.winner === playerColor
+                ? "You"
+                : "AI";
+
+        return {
+            text: `${gameResult.winner} wins! (${winnerType})`,
+            textColor: "text-white"
+        };
+    }
+
+    if (gameResult?.title === "Stalemate") {
+
+        return {
+            text: "Draw (Stalemate)",
+            textColor: "text-white"
+        };
+    }
+
+    return {
+        text:
+            `${turn}'s turn (${
+                turn === playerColor
+                    ? "you"
+                    : "AI"
+            })`,
+        textColor:
+            turn === "white"
+                ? "text-white"
+                : "text-black"
+    };
 };
