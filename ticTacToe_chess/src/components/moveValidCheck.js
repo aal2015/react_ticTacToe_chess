@@ -875,7 +875,6 @@ export const handleEnPassant = (
         board[toRow][toCol] === "";
 
     if (isEnPassant) {
-
         const capturedPawnRow =
             pieceColor === "white"
                 ? toRow + 1

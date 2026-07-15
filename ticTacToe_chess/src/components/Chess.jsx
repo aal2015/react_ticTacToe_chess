@@ -222,7 +222,7 @@ const Chess = () => {
                 );
 
                 // =========================
-                // MOVE FLAGS
+                // CAPTURE FLAG
                 // =========================
 
                 const isCapture =
