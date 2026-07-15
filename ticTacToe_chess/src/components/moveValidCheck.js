@@ -1,3 +1,5 @@
+import { pieceNotation, generateMoveNotation } from './moveNotation';
+
 export const generateMovesForPiece = (
     board,
     piece,
@@ -1267,4 +1269,228 @@ export const isMoveValid = (
             moveRow === row &&
             moveCol === col
     );
+};
+
+
+export const processPlayerMove = ({
+    board,
+    selected,
+    target,
+    turn,
+    castleState,
+    enPassantState,
+    moveCount
+}) => {
+
+    const [row, col] = target;
+
+    // =========================
+    // VALID MOVE
+    // =========================
+
+    const validMove = isMoveValid(
+        board,
+        selected,
+        turn,
+        row,
+        col,
+        enPassantState,
+        castleState,
+        moveCount
+    );
+
+    if (!validMove) {
+        return {
+            validMove: false
+        };
+    }
+
+    const boardClone =
+        board.map(boardRow => [...boardRow]);
+
+    const movingPiece =
+        board[selected[0]][selected[1]];
+
+    // =========================
+    // CASTLING
+    // =========================
+
+    const {
+        castleState: newCastleState,
+        isCastleKingSide,
+        isCastleQueenSide
+    } = handleCastleMove(
+        boardClone,
+        castleState,
+        movingPiece,
+        selected[0],
+        selected[1],
+        row,
+        col
+    );
+
+    // =========================
+    // CAPTURE
+    // =========================
+
+    const isCapture =
+        board[row][col] !== "";
+
+    // =========================
+    // EN PASSANT
+    // =========================
+
+    const {
+        isEnPassant
+    } = handleEnPassant(
+        boardClone,
+        movingPiece,
+        turn,
+        selected[1],
+        row,
+        col
+    );
+
+    // =========================
+    // MOVE PIECE
+    // =========================
+
+    boardClone[row][col] = movingPiece;
+    boardClone[selected[0]][selected[1]] = "";
+
+    // =========================
+    // PROMOTION
+    // =========================
+
+    const isPromotion =
+        movingPiece[1] === "p" &&
+        (
+            (movingPiece[0] === "w" && row === 0) ||
+            (movingPiece[0] === "b" && row === 7)
+        );
+
+    // =========================
+    // EN PASSANT ENABLE
+    // =========================
+
+    let nextEnPassantState = null;
+
+    if (
+        movingPiece[1] === "p" &&
+        Math.abs(row - selected[0]) === 2
+    ) {
+
+        nextEnPassantState = {
+            row,
+            col,
+            pieceColor: turn,
+            moveCount
+        };
+    }
+
+    // =========================
+    // SELF CHECK
+    // =========================
+
+    if (
+        wouldKingBeInCheckAfterMove(
+            boardClone,
+            turn
+        )
+    ) {
+
+        return {
+            validMove: false
+        };
+    }
+
+    // =========================
+    // CHECK STATUS
+    // =========================
+
+    const enemyColor =
+        turn === "white"
+            ? "black"
+            : "white";
+
+    const checkState =
+        wouldKingBeInCheckAfterMove(
+            boardClone,
+            enemyColor
+        );
+
+    const checkMateState =
+        isCheckMate(
+            boardClone,
+            enemyColor,
+            nextEnPassantState,
+            moveCount + 1
+        );
+
+    const staleMateState =
+        isStaleMate(
+            boardClone,
+            enemyColor,
+            nextEnPassantState,
+            moveCount + 1
+        );
+
+    // =========================
+    // NOTATION
+    // =========================
+
+    const notation =
+        generateMoveNotation({
+
+            movingPiece,
+
+            selected,
+
+            row,
+            col,
+
+            isCapture,
+
+            isCastleKingSide,
+            isCastleQueenSide,
+
+            isCheck: checkState,
+            isCheckMate: checkMateState,
+            isStaleMate: staleMateState,
+
+            isEnPassant
+        });
+
+    return {
+
+        validMove: true,
+
+        board: {
+            board: boardClone,
+            castleState: newCastleState,
+            enPassantState: nextEnPassantState
+        },
+
+        move: {
+            movingPiece,
+            from: selected,
+            to: [row, col],
+            isCapture,
+            isEnPassant,
+            isPromotion
+        },
+
+        game: {
+            check: checkState,
+            checkmate: checkMateState,
+            stalemate: staleMateState
+        },
+
+        castle: {
+            kingSide: isCastleKingSide,
+            queenSide: isCastleQueenSide
+        },
+
+        notation
+    };
 };

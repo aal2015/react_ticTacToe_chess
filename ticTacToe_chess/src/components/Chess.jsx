@@ -3,14 +3,14 @@ import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
 import ResetGameModal from './GameResetModal';
-import { pieceNotation, generateMoveNotation } from './moveNotation';
 import {
     isMoveValid,
     wouldKingBeInCheckAfterMove,
     isCheckMate,
     isStaleMate,
     handleCastleMove,
-    handleEnPassant
+    handleEnPassant,
+    processPlayerMove
 } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
@@ -179,296 +179,101 @@ const Chess = () => {
     };
 
     const pieceSelect = (row, col) => {
-
         if (selected) {
+            const result = processPlayerMove({
+                board,
+                selected,
+                target: [row, col],
+                turn,
+                castleState,
+                enPassantState,
+                moveCount
+            });
 
-            const validMove =
-                isMoveValid(
-                    board,
-                    selected,
-                    turn,
-                    row,
-                    col,
-                    enPassantState,
-                    castleState,
-                    moveCount
-                );
-
-            if (validMove) {
-
-                const boardClone =
-                    board.map(
-                        (boardRow) => [...boardRow]
-                    );
-
-                const movingPiece =
-                    board[selected[0]][selected[1]];
-
-                // =========================
-                // CHECK CASTLE
-                // =========================
-                const {
-                    castleState: newCastleState,
-                    isCastleKingSide,
-                    isCastleQueenSide
-                } = handleCastleMove(
-                    boardClone,
-                    castleState,
-                    movingPiece,
-                    selected[0],
-                    selected[1],
-                    row,
-                    col
-                );
-
-                // =========================
-                // CAPTURE FLAG
-                // =========================
-
-                const isCapture =
-                    board[row][col] !== '';
-
-                // =========================
-                // EN PASSANT CAPTURE
-                // =========================
-                const { isEnPassant } = handleEnPassant(
-                    boardClone,
-                    movingPiece,
-                    turn,
-                    selected[1],
-                    row,
-                    col
-                );
-
-                // =========================
-                // MOVE PIECE
-                // =========================
-
-                boardClone[row][col] = movingPiece;
-                boardClone[selected[0]][selected[1]] = '';
-
-                // =========================
-                // PAWN PROMOTION CHECK
-                // =========================
-
-                const isPromotion =
-                    movingPiece[1] === 'p' &&
-                    (
-                        (movingPiece[0] === 'w' && row === 0) ||
-                        (movingPiece[0] === 'b' && row === 7)
-                    );
-
-                // =========================
-                // EN PASSANT ENABLE
-                // =========================
-
-                let nextEnPassantState = null;
-
-                if (
-                    movingPiece[1] === 'p' &&
-                    Math.abs(row - selected[0]) === 2
-                ) {
-
-                    nextEnPassantState = {
-                        row,
-                        col,
-                        pieceColor: turn,
-                        moveCount
-                    };
-                }
-
-                if (isPromotion) {
-                    setPromotionData({
-                        boardClone,
-                        row,
-                        col,
-                        movingPiece,
-                        selected,
-                        newCastleState,
-                        nextEnPassantState
-                    });
-
-                    setShowPromotionModal(true);
-                    setSelected(null);
-
-                    return;
-                }
-
-                // =========================
-                // KING SAFETY CHECK
-                // =========================
-
-                if (
-                    wouldKingBeInCheckAfterMove(
-                        boardClone,
-                        turn
-                    )
-                ) {
-
-                    setSelected(null);
-                    return;
-                }
-
-                // =========================
-                // CHECK / CHECKMATE
-                // =========================
-
-                const enemyColor =
-                    turn === 'white'
-                        ? 'black'
-                        : 'white';
-
-                const checkState =
-                    wouldKingBeInCheckAfterMove(
-                        boardClone,
-                        enemyColor
-                    );
-
-                const checkMateState =
-                    isCheckMate(
-                        boardClone,
-                        enemyColor,
-                        nextEnPassantState,
-                        moveCount + 1
-                    );
-
-                if (checkMateState) {
-                    setGameResult({
-                        title: "Checkmate",
-                        message: `${turn} wins!`
-                    });
-                }
-
-                // =========================
-                // STALEMATE CHECK
-                // =========================
-
-                const stalemateState = isStaleMate(
-                    boardClone,
-                    enemyColor,
-                    nextEnPassantState,
-                    moveCount + 1
-                );
-
-                if (stalemateState) {
-                    console.log("Stalemate!");
-                    const notation = generateMoveNotation({
-                        movingPiece,
-                        selected,
-                        row,
-                        col,
-                        isCapture,
-                        isCastleKingSide,
-                        isCastleQueenSide,
-                        isCheck: checkState,
-                        isCheckMate: checkMateState,
-                        isStaleMate: stalemateState,
-                        isEnPassant
-                    });
-                    setMoveHistory((prev) => {
-                        const updatedHistory = [...prev];
-                        // white move
-                        if (turn === 'white') {
-                            updatedHistory.push({
-                                moveNumber:
-                                    Math.floor(moveCount / 2) + 1,
-                                white: notation,
-                                black: ''
-                            });
-                        } else {
-                            // black move
-                            updatedHistory[
-                                updatedHistory.length - 1
-                            ].black = notation;
-                        }
-                        return updatedHistory;
-                    });
-                    setBoard(boardClone);
-                    setCastleState(newCastleState);
-                    setEnPassantState(nextEnPassantState);
-                    setWinner(null);
-                    setSelected(null);
-                    setGameResult({
-                        title: "Stalemate",
-                        message: "The game ends in a draw."
-                    });
-                    return;
-                }
-
-                // =========================
-                // GENERATE NOTATION
-                // =========================
-
-                const notation =
-                    generateMoveNotation({
-                        movingPiece,
-                        selected,
-                        row,
-                        col,
-                        isCapture,
-                        isCastleKingSide,
-                        isCastleQueenSide,
-                        isCheck: checkState,
-                        isCheckMate: checkMateState,
-                        isStaleMate: stalemateState,
-                        isEnPassant
-                    });
-
-                // =========================
-                // UPDATE MOVE HISTORY
-                // =========================
-
-                setMoveHistory((prev) => {
-
-                    const updatedHistory = [...prev];
-
-                    // white move
-
-                    if (turn === 'white') {
-
-                        updatedHistory.push({
-                            moveNumber:
-                                Math.floor(moveCount / 2) + 1,
-                            white: notation,
-                            black: ''
-                        });
-
-                    } else {
-
-                        // black move
-
-                        updatedHistory[
-                            updatedHistory.length - 1
-                        ].black = notation;
-                    }
-
-                    return updatedHistory;
-                });
-
-                // =========================
-                // COMMIT STATE
-                // =========================
-
-                setBoard(boardClone);
-
-                setCastleState(newCastleState);
-
-                setEnPassantState(nextEnPassantState);
-
-                // =========================
-                // NEXT TURN
-                // =========================
-                setTurn(
-                    turn === 'white'
-                        ? 'black'
-                        : 'white'
-                );
-
-                setMoveCount(moveCount + 1);
+            if (!result.validMove) {
+                setSelected(null);
+                return;
             }
 
-            setSelected(null);
+            // =========================
+            // PAWN PROMOTION
+            // =========================
 
+            if (result.move.isPromotion) {
+                setPromotionData({
+                    boardClone: result.board.board,
+                    row: result.move.to[0],
+                    col: result.move.to[1],
+                    movingPiece: result.move.movingPiece,
+                    selected: result.move.from,
+                    newCastleState: result.board.castleState,
+                    nextEnPassantState: result.board.enPassantState
+                });
+                setShowPromotionModal(true);
+                setSelected(null);
+                return;
+            }
+
+            // =========================
+            // GAME RESULT
+            // =========================
+
+            if (result.game.checkmate) {
+                setGameResult({
+                    title: "Checkmate",
+                    message: `${turn} wins!`
+                });
+            }
+
+            if (result.game.stalemate) {
+                setGameResult({
+                    title: "Stalemate",
+                    message: "The game ends in a draw."
+                });
+            }
+
+            // =========================
+            // MOVE HISTORY
+            // =========================
+
+            setMoveHistory(prev => {
+                const history = [...prev];
+                if (turn === "white") {
+                    history.push({
+                        moveNumber:
+                            Math.floor(moveCount / 2) + 1,
+                        white: result.notation,
+                        black: ""
+                    });
+                } else {
+                    history[history.length - 1].black = result.notation;
+                }
+                return history;
+            });
+
+            // =========================
+            // UPDATE BOARD
+            // =========================
+
+            setBoard(result.board.board);
+            setCastleState(
+                result.board.castleState
+            );
+            setEnPassantState(
+                result.board.enPassantState
+            );
+
+            // =========================
+            // NEXT TURN
+            // =========================
+
+            setTurn(
+                turn === "white"
+                    ? "black"
+                    : "white"
+            );
+            setMoveCount(moveCount + 1);
+            setSelected(null);
             return;
         }
 
@@ -477,7 +282,6 @@ const Chess = () => {
         // =========================
 
         if (board[row][col] === '') {
-
             return;
         }
 
