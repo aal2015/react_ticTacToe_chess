@@ -140,8 +140,6 @@ const isSquareUnderAttack = (
 
 
             if (attacking) {
-                console.log(piece, "attacks", targetRow, targetCol);
-
                 return true;
             }
         }
@@ -1061,6 +1059,8 @@ const hasAnyLegalMove = (
     enPassantState,
     moveCount
 ) => {
+    console.log("Hit");
+    
     const pieceColorCode =
         color === "white" ? "w" : "b";
 
