@@ -77,6 +77,22 @@ const Chess = () => {
         setShowResetModal(false);
     };
 
+    const updateGameResult = (checkMateState, stalemateState) => {
+        if (checkMateState) {
+            setGameResult({
+                title: "Checkmate",
+                message: `${turn} wins!`,
+                winner: turn
+            });
+            setWinner(turn);
+        } else if (stalemateState) {
+            setGameResult({
+                title: "Stalemate",
+                message: "The game ends in a draw."
+            });
+        }
+    }
+
     const handlePromotionHelper = (promotedPiece) => {
         const {
             boardClone,
@@ -125,19 +141,7 @@ const Chess = () => {
                 : 'white'
         );
         setMoveCount(updatedMoveCount);
-        if (checkMateState) {
-            setGameResult({
-                title: "Checkmate",
-                message: `${turn} wins!`,
-                winner: turn
-            });
-            setWinner(turn);
-        } else if (stalemateState) {
-            setGameResult({
-                title: "Stalemate",
-                message: "The game ends in a draw."
-            });
-        }
+        updateGameResult(checkMateState, stalemateState);
     };
 
     const pieceSelect = (row, col) => {
@@ -180,21 +184,7 @@ const Chess = () => {
             // GAME RESULT
             // =========================
 
-            if (result.game.checkmate) {
-                setGameResult({
-                    title: "Checkmate",
-                    message: `${turn} wins!`,
-                    winner: turn
-                });
-                setWinner(turn);
-            }
-
-            if (result.game.stalemate) {
-                setGameResult({
-                    title: "Stalemate",
-                    message: "The game ends in a draw."
-                });
-            }
+            updateGameResult(result.game.checkmate, result.game.stalemate);
 
             // =========================
             // MOVE HISTORY
