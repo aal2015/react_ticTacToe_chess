@@ -116,16 +116,41 @@ export class ChessMinMaxAlgo {
                 );
 
                 for (const [moveRow, moveCol] of possibleMoves) {
+                    let score = 0;
+                    // promotion
+                    if (piece[1] === 'p' && (moveRow === 0 || moveRow === 7)) {
+                        score += 50;
+                    }
+                    // piece capture
+                    const target = board[moveRow][moveCol];
+                    if (
+                        target !== "" &&
+                        target[0] !== pieceCode
+                    ) {
+                        score +=
+                            chessPiecePoints[target[1]] * 10
+                            - chessPiecePoints[piece[1]];
+                    }
+                    // castling
+                    if (piece[1] === 'k' && Math.abs(moveCol - col) > 1) {
+                        score += 5;
+                    }
+
                     moves.push({
                         piece,
                         fromRow: row,
                         fromCol: col,
                         toRow: moveRow,
-                        toCol: moveCol
+                        toCol: moveCol,
+                        score: score
                     });
                 }
             }
         }
+
+        moves.sort(
+            (a, b) => b.score - a.score
+        );
 
         for (const move of moves) {
             const {
@@ -142,7 +167,7 @@ export class ChessMinMaxAlgo {
                 );
 
             // EN PASSANT CAPTURE
-            const { isEnPassant } = handleEnPassant(
+            handleEnPassant(
                 boardClone,
                 piece,
                 pieceColor,
