@@ -78,7 +78,9 @@ describe("minMax terminal states", () => {
             castleState,
             0,
             3,
-            3
+            3,
+            -Infinity,
+            Infinity
         );
 
         expect(result).toEqual({
@@ -106,7 +108,9 @@ describe("minMax terminal states", () => {
             castleState,
             0,
             0,
-            3
+            3,
+            -Infinity,
+            Infinity
         );
 
         expect(result).toEqual({
@@ -134,7 +138,9 @@ describe("minMax terminal states", () => {
             castleState,
             0,
             0,
-            3
+            3,
+            -Infinity,
+            Infinity
         );
 
         expect(result).toEqual({
@@ -162,7 +168,9 @@ describe("minMax terminal states", () => {
             castleState,
             0,
             0,
-            3
+            3,
+            -Infinity,
+            Infinity
         );
 
         expect(result).toEqual({
@@ -190,7 +198,9 @@ describe("minMax terminal states", () => {
             castleState,
             0,
             4,
-            6
+            6,
+            -Infinity,
+            Infinity
         );
 
         expect(result).toEqual({
@@ -219,7 +229,9 @@ describe("minMax terminal states", () => {
             {},
             0,
             0,
-            1
+            1,
+            -Infinity,
+            Infinity
         );
 
         expect(result.move).toEqual({
@@ -267,7 +279,9 @@ describe("minMax terminal states", () => {
             castleState,
             2,  
             0,
-            1
+            1,
+            -Infinity,
+            Infinity
         );
 
         expect(result.move).toEqual({
