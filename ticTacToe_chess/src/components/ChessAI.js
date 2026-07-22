@@ -16,6 +16,101 @@ const chessPiecePoints = {
     k: 0
 };
 
+const simulateMove = (
+    board, castleState, piece, fromRow,
+    fromCol, toRow, toCol, moveCount
+) => {
+    const boardClone =
+        board.map(
+            boardRow => [...boardRow]
+        );
+
+    const pieceColor =
+        piece[0] === "w"
+            ? "white"
+            : "black";
+
+    // EN PASSANT CAPTURE
+    handleEnPassant(
+        boardClone,
+        piece,
+        pieceColor,
+        fromCol,
+        toRow,
+        toCol
+    );
+
+    // handle castle
+    const {
+        castleState: newCastleState
+    } = handleCastleMove(
+        boardClone,
+        castleState,
+        piece,
+        fromRow,
+        fromCol,
+        toRow,
+        toCol
+    );
+
+    // simulate move
+    boardClone[toRow][toCol] = piece;
+    boardClone[fromRow][fromCol] = '';
+
+    // pawn promotion
+    let promotionPiece = null;
+    if (
+        piece[1] === "p" &&
+        (
+            (pieceColor === "white" && toRow === 0) ||
+            (pieceColor === "black" && toRow === 7)
+        )
+    ) {
+        // Always promote to queen
+        boardClone[toRow][toCol] =
+            piece[0] + "q";
+        promotionPiece = "q";
+    }
+
+    // update en passant
+    let nextEnPassantState = null;
+    if (
+        piece[1] === "p" &&
+        Math.abs(toRow - fromRow) === 2
+    ) {
+
+        nextEnPassantState = {
+            row: toRow,
+            col: toCol,
+            pieceColor,
+            moveCount: moveCount + 1
+        };
+    }
+
+    const enemyColor =
+        pieceColor === "white"
+            ? "black"
+            : "white";
+
+    return {
+        updatedBoard: boardClone,
+        castleState: newCastleState,
+        nextEnPassantState,
+        promotionPiece,
+
+        isSelfCheck: wouldKingBeInCheckAfterMove(
+            boardClone,
+            pieceColor
+        ),
+
+        givesCheck: wouldKingBeInCheckAfterMove(
+            boardClone,
+            enemyColor
+        )
+
+    };
+};
+
 export class ChessMinMaxAlgo {
     constructor() { }
 
@@ -118,40 +213,31 @@ export class ChessMinMaxAlgo {
                 // sorted moves based on priority
                 for (const [moveRow, moveCol] of possibleMoves) {
                     let score = 0;
+
                     // check enemy king
-                    const boardClone =
-                        board.map(
-                            boardRow => [...boardRow]
-                        );
-
-                    // EN PASSANT CAPTURE
-                    handleEnPassant(
-                        boardClone,
-                        piece,
-                        pieceColor,
-                        col,
-                        moveRow,
-                        moveCol
-                    );
-
-                    // handle castle
                     const {
-                        castleState: newCastleState,
-                        isCastleKingSide,
-                        isCastleQueenSide
-                    } = handleCastleMove(
-                        boardClone,
+                        givesCheck,
+                        isSelfCheck
+                    } = simulateMove(
+                        board,
                         castleState,
                         piece,
                         row,
                         col,
                         moveRow,
-                        moveCol
+                        moveCol,
+                        moveCount
                     );
 
-                    // simulate move
-                    boardClone[moveRow][moveCol] = piece;
-                    boardClone[row][col] = "";
+                    // Don't bother ordering illegal moves
+                    if (isSelfCheck) {
+                        continue;
+                    }
+
+                    // Gives check
+                    if (givesCheck) {
+                        score += 100;
+                    }
 
                     // pawn promotion
                     let promotionPiece = null;
@@ -166,12 +252,6 @@ export class ChessMinMaxAlgo {
                         boardClone[moveRow][moveCol] =
                             piece[0] + "q";
                         promotionPiece = "q";
-                    }
-
-                    const enemyColor =
-                        pieceColor === "white" ? "black" : "white";
-                    if (wouldKingBeInCheckAfterMove(boardClone, enemyColor)) {
-                        score += 100;
                     }
 
                     // promotion
@@ -218,104 +298,47 @@ export class ChessMinMaxAlgo {
                 toCol
             } = move;
 
-            const boardClone =
-                board.map(
-                    boardRow => [...boardRow]
-                );
-
-            // EN PASSANT CAPTURE
-            handleEnPassant(
-                boardClone,
-                piece,
-                pieceColor,
-                fromCol,
-                toRow,
-                toCol
-            );
-
-            // handle castle
             const {
+                updatedBoard,
                 castleState: newCastleState,
-                isCastleKingSide,
-                isCastleQueenSide
-            } = handleCastleMove(
-                boardClone,
+                nextEnPassantState,
+                promotionPiece,
+                isSelfCheck
+            } = simulateMove(
+                board,
                 castleState,
                 piece,
                 fromRow,
                 fromCol,
                 toRow,
-                toCol
+                toCol,
+                moveCount
             );
 
-            // simulate move
-            boardClone[toRow][toCol] = piece;
-            boardClone[fromRow][fromCol] = '';
-
-            // pawn promotion
-            let promotionPiece = null;
-            if (
-                piece[1] === "p" &&
-                (
-                    (pieceColor === "white" && toRow === 0) ||
-                    (pieceColor === "black" && toRow === 7)
-                )
-            ) {
-                // Always promote to queen
-                boardClone[toRow][toCol] =
-                    piece[0] + "q";
-                promotionPiece = "q";
-            }
-
-            // update en passant
-            let nextEnPassantState = null;
-            if (
-                piece[1] === "p" &&
-                Math.abs(toRow - fromRow) === 2
-            ) {
-
-                nextEnPassantState = {
-                    row: toRow,
-                    col: toCol,
-                    pieceColor,
-                    moveCount: moveCount + 1
-                };
-            }
-
-            // check for illegal self-check moves
-            if (
-                wouldKingBeInCheckAfterMove(
-                    boardClone,
-                    pieceColor
-                )
-            ) {
+            if (isSelfCheck) {
                 continue;
             }
 
-            // next player
             const nextColor =
                 pieceColor === "white"
                     ? "black"
                     : "white";
 
-            // recursive call
-            const result =
-                this.minMax(
-                    boardClone,
-                    nextColor,
-                    nextEnPassantState,
-                    newCastleState,
-                    moveCount + 1,
-                    curDepth + 1,
-                    MaxDepth,
-                    alpha,
-                    beta
-                );
+            const result = this.minMax(
+                updatedBoard,
+                nextColor,
+                nextEnPassantState,
+                newCastleState,
+                moveCount + 1,
+                curDepth + 1,
+                MaxDepth,
+                alpha,
+                beta
+            );
 
             const score = result.score;
-
-            // update best score
             if (pieceColor === "white") {
+
                 if (score > bestScore) {
                     bestScore = score;
                     bestMove = {
@@ -324,11 +347,12 @@ export class ChessMinMaxAlgo {
                         promotion: promotionPiece
                     };
                 }
+
                 alpha = Math.max(alpha, bestScore);
-                if (beta <= alpha)
+                if (beta <= alpha) {
                     break;
-            }
-            else {
+                }
+            } else {
                 if (score < bestScore) {
                     bestScore = score;
                     bestMove = {
@@ -337,9 +361,11 @@ export class ChessMinMaxAlgo {
                         promotion: promotionPiece
                     };
                 }
+
                 beta = Math.min(beta, bestScore);
-                if (beta <= alpha)
+                if (beta <= alpha) {
                     break;
+                }
             }
         }
 
