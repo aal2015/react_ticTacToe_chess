@@ -1058,9 +1058,7 @@ const hasAnyLegalMove = (
     color,
     enPassantState,
     moveCount
-) => {
-    console.log("Hit");
-    
+) => {    
     const pieceColorCode =
         color === "white" ? "w" : "b";
 

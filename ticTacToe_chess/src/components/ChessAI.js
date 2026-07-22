@@ -115,8 +115,65 @@ export class ChessMinMaxAlgo {
                     moveCount
                 );
 
+                // sorted moves based on priority
                 for (const [moveRow, moveCol] of possibleMoves) {
                     let score = 0;
+                    // check enemy king
+                    const boardClone =
+                        board.map(
+                            boardRow => [...boardRow]
+                        );
+
+                    // EN PASSANT CAPTURE
+                    handleEnPassant(
+                        boardClone,
+                        piece,
+                        pieceColor,
+                        col,
+                        moveRow,
+                        moveCol
+                    );
+
+                    // handle castle
+                    const {
+                        castleState: newCastleState,
+                        isCastleKingSide,
+                        isCastleQueenSide
+                    } = handleCastleMove(
+                        boardClone,
+                        castleState,
+                        piece,
+                        row,
+                        col,
+                        moveRow,
+                        moveCol
+                    );
+
+                    // simulate move
+                    boardClone[moveRow][moveCol] = piece;
+                    boardClone[row][col] = "";
+
+                    // pawn promotion
+                    let promotionPiece = null;
+                    if (
+                        piece[1] === "p" &&
+                        (
+                            (pieceColor === "white" && moveRow === 0) ||
+                            (pieceColor === "black" && moveRow === 7)
+                        )
+                    ) {
+                        // Always promote to queen
+                        boardClone[moveRow][moveCol] =
+                            piece[0] + "q";
+                        promotionPiece = "q";
+                    }
+
+                    const enemyColor =
+                        pieceColor === "white" ? "black" : "white";
+                    if (wouldKingBeInCheckAfterMove(boardClone, enemyColor)) {
+                        score += 100;
+                    }
+
                     // promotion
                     if (piece[1] === 'p' && (moveRow === 0 || moveRow === 7)) {
                         score += 50;
