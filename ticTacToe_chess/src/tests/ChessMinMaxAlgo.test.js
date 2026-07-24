@@ -293,7 +293,7 @@ describe("minMax terminal states", () => {
         expect(result.score).toBe(1);
     });
 
-    it("prefers back-rank mate", () => {
+    it("finds a checking rook move", () => {
         const board = emptyBoard();
 
         // Kings
@@ -327,5 +327,39 @@ describe("minMax terminal states", () => {
         });
 
         expect(result.score).toBe(999);
+    });
+
+    it("finds a rook move to checkmate in 2", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[1][7] = "bk";
+
+        // White rooks on a6 and b5
+        board[2][0] = "wr";
+        board[3][1] = "wr";
+
+        const result = algo.minMax(
+            board,
+            "white",
+            null, // no en passant
+            {},
+            0,
+            0,
+            3,
+            -Infinity,
+            Infinity
+        );
+
+        console.log(result);
+
+        expect(result.move).toEqual({
+            from: [3, 1],
+            to: [1, 1],
+            promotion: null
+        });
+
+        expect(result.score).toBe(997);
     });
 });
