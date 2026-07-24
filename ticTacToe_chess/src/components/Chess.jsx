@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
@@ -7,6 +7,7 @@ import { processPlayerMove } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
 import { initBoard, getStatusInfo } from './chessUtil';
+import { ChessMinMaxAlgo } from './ChessAI';
 
 const Chess = () => {
     const [board, setBoard] = useState(initBoard);
@@ -251,6 +252,28 @@ const Chess = () => {
         gameResult,
         playerColor
     );
+
+    useEffect(() => {
+        if (turn === playerColor) {
+            return;
+        } 
+
+        console.log("Ai turn");
+        const algo = new ChessMinMaxAlgo();
+
+        const result = algo.minMax(
+            board,
+            turn,
+            enPassantState,
+            castleState,
+            moveCount,
+            0,
+            5,
+            -Infinity,
+            Infinity
+        );
+        console.log(result);
+    }, [turn]);
 
     return (
         <div
