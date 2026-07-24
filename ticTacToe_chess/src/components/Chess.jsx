@@ -256,12 +256,12 @@ const Chess = () => {
     useEffect(() => {
         if (turn === playerColor) {
             return;
-        } 
+        }
 
         console.log("Ai turn");
         const algo = new ChessMinMaxAlgo();
 
-        const result = algo.minMax(
+        const minMaxResult = algo.minMax(
             board,
             turn,
             enPassantState,
@@ -272,7 +272,93 @@ const Chess = () => {
             -Infinity,
             Infinity
         );
-        console.log(result);
+
+        const result = processPlayerMove({
+            board,
+            selected: minMaxResult.move.from,
+            target: [minMaxResult.move.to[0], minMaxResult.move.to[1]],
+            turn,
+            castleState,
+            enPassantState,
+            moveCount
+        });
+
+        console.log(minMaxResult.move.from);
+        console.log(minMaxResult.move.to);
+
+        if (!result.validMove) {
+            setSelected(null);
+            return;
+        }
+
+        // =========================
+        // PAWN PROMOTION
+        // =========================
+
+        if (result.move.isPromotion) {
+            setPromotionData({
+                boardClone: result.board.board,
+                row: result.move.to[0],
+                col: result.move.to[1],
+                movingPiece: result.move.movingPiece,
+                selected: result.move.from,
+                newCastleState: result.board.castleState,
+                nextEnPassantState: result.board.enPassantState
+            });
+            setShowPromotionModal(true);
+            setSelected(null);
+            return;
+        }
+
+        // =========================
+        // GAME RESULT
+        // =========================
+
+        updateGameResult(result.game.checkmate, result.game.stalemate);
+
+        // =========================
+        // MOVE HISTORY
+        // =========================
+
+        setMoveHistory(prev => {
+            const history = [...prev];
+            if (turn === "white") {
+                history.push({
+                    moveNumber:
+                        Math.floor(moveCount / 2) + 1,
+                    white: result.notation,
+                    black: ""
+                });
+            } else {
+                history[history.length - 1].black = result.notation;
+            }
+            return history;
+        });
+
+        // =========================
+        // UPDATE BOARD
+        // =========================
+
+        setBoard(result.board.board);
+        setCastleState(
+            result.board.castleState
+        );
+        setEnPassantState(
+            result.board.enPassantState
+        );
+
+        // =========================
+        // NEXT TURN
+        // =========================
+
+        setTurn(
+            turn === "white"
+                ? "black"
+                : "white"
+        );
+        setMoveCount(moveCount + 1);
+        setSelected(null);
+        return;
     }, [turn]);
 
     return (
