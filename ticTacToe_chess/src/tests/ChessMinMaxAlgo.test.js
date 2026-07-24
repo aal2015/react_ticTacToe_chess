@@ -277,7 +277,7 @@ describe("minMax terminal states", () => {
             "white",
             enPassantState,
             castleState,
-            2,  
+            2,
             0,
             1,
             -Infinity,
@@ -293,4 +293,39 @@ describe("minMax terminal states", () => {
         expect(result.score).toBe(1);
     });
 
+    it("prefers back-rank mate", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][7] = "bk";
+
+        // Black pawns on f7, g7, and h7
+        board[1][5] = "bp";
+        board[1][6] = "bp";
+        board[1][7] = "bp";
+
+        // White rook on a1
+        board[7][0] = "wr";
+
+        const result = algo.minMax(
+            board,
+            "white",
+            null, // no en passant
+            {},
+            0,
+            0,
+            1,
+            -Infinity,
+            Infinity
+        );
+
+        expect(result.move).toEqual({
+            from: [7, 0],
+            to: [0, 0],
+            promotion: null
+        });
+
+        expect(result.score).toBe(999);
+    });
 });
