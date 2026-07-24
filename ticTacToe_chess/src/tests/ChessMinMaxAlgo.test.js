@@ -352,8 +352,6 @@ describe("minMax terminal states", () => {
             Infinity
         );
 
-        console.log(result);
-
         expect(result.move).toEqual({
             from: [3, 1],
             to: [1, 1],
@@ -361,5 +359,37 @@ describe("minMax terminal states", () => {
         });
 
         expect(result.score).toBe(997);
+    });
+
+    it("promote pawn to checkmate", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][7] = "bk";
+
+        // white rook on a7 and white pawn on b2
+        board[1][0] = "wr";
+        board[1][1] = "wp";
+
+        const result = algo.minMax(
+            board,
+            "white",
+            null, // no en passant
+            {},
+            0,
+            0,
+            3,
+            -Infinity,
+            Infinity
+        );
+
+        expect(result.move).toEqual({
+            from: [1, 1],
+            to: [0, 1],
+            promotion: 'q'
+        });
+
+        expect(result.score).toBe(999);
     });
 });

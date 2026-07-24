@@ -217,7 +217,8 @@ export class ChessMinMaxAlgo {
                     // check enemy king
                     const {
                         givesCheck,
-                        isSelfCheck
+                        isSelfCheck,
+                        promotionPiece
                     } = simulateMove(
                         board,
                         castleState,
@@ -239,23 +240,8 @@ export class ChessMinMaxAlgo {
                         score += 100;
                     }
 
-                    // pawn promotion
-                    let promotionPiece = null;
-                    if (
-                        piece[1] === "p" &&
-                        (
-                            (pieceColor === "white" && moveRow === 0) ||
-                            (pieceColor === "black" && moveRow === 7)
-                        )
-                    ) {
-                        // Always promote to queen
-                        boardClone[moveRow][moveCol] =
-                            piece[0] + "q";
-                        promotionPiece = "q";
-                    }
-
                     // promotion
-                    if (piece[1] === 'p' && (moveRow === 0 || moveRow === 7)) {
+                    if (promotionPiece) {
                         score += 50;
                     }
                     // piece capture
