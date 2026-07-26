@@ -43,3 +43,7 @@
 .activeSelect {
     background-color: #ffee32;
 }
+
+.lastMoveHighlight {
+    background-color: #6db6fb;
+}

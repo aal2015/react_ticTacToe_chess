@@ -18,6 +18,8 @@ const Chess = () => {
     const [selected, setSelected] = useState(null);
     const [moveCount, setMoveCount] = useState(0);
     const [enPassantState, setEnPassantState] = useState(null);
+    // const [lastMove, setLastMove] = useState(null);
+    const [lastMove, setLastMove] = useState(null);
     const [playerColor, setPlayerColor] = useState("white");
     const [moveHistory, setMoveHistory] = useState([]);
 
@@ -186,6 +188,12 @@ const Chess = () => {
             result.board.enPassantState
         );
 
+        // LAST MOVE HIGHLIGHT
+        setLastMove({
+            from: selected,
+            to: target
+        });
+
         // NEXT TURN
         setTurn(
             turn === "white"
@@ -294,6 +302,7 @@ const Chess = () => {
                     boardState={board}
                     onPieceSelect={pieceSelect}
                     activeSelect={selected}
+                    lastMove={lastMove}
                     playerColor={playerColor}
                 />
 

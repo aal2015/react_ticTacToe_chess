@@ -31,6 +31,7 @@ const ChessBoard = ({
     boardState,
     onPieceSelect,
     activeSelect,
+    lastMove,
     playerColor
 }) => {
 
@@ -143,6 +144,20 @@ const ChessBoard = ({
                                 rowIndex === activeSelect[0] &&
                                 cellIndex === activeSelect[1];
 
+                            // =========================
+                            // LAST MOVE HIGHLIGHT
+                            // =========================
+
+                            const isLastMove =
+                                lastMove &&
+                                (
+                                    (rowIndex === lastMove.from[0] &&
+                                        cellIndex === lastMove.from[1]) ||
+
+                                    (rowIndex === lastMove.to[0] &&
+                                        cellIndex === lastMove.to[1])
+                                );
+
                             return (
                                 <div
                                     key={`${displayRow}-${displayCol}`}
@@ -153,6 +168,9 @@ const ChessBoard = ({
                                             : 'darkBlue'}
                                         ${isSelected
                                             ? 'activeSelect'
+                                            : ''}
+                                        ${isLastMove 
+                                            ? 'lastMoveHighlight'
                                             : ''}
                                     `}
                                     onClick={() =>
