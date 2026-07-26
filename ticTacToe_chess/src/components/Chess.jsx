@@ -6,21 +6,12 @@ import ResetGameModal from './GameResetModal';
 import { processPlayerMove } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
-import { initBoard, getStatusInfo } from './chessUtil';
+import { initBoard, getStatusInfo, initCastleState } from './chessUtil';
 import { ChessMinMaxAlgo } from './ChessAI';
 
 const Chess = () => {
     const [board, setBoard] = useState(initBoard);
-    const [castleState, setCastleState] = useState({
-        whiteKingMoved: false,
-        blackKingMoved: false,
-
-        whiteLeftRookMoved: false,
-        whiteRightRookMoved: false,
-
-        blackLeftRookMoved: false,
-        blackRightRookMoved: false
-    });
+    const [castleState, setCastleState] = useState(initCastleState);
     const [turn, setTurn] = useState("white");
     const [winner, setWinner] = useState(null);
     const [gameResult, setGameResult] = useState(null);
@@ -37,16 +28,7 @@ const Chess = () => {
         setMoveCount(0);
         setEnPassantState(null);
         setMoveHistory([]);
-        setCastleState({
-            whiteKingMoved: false,
-            blackKingMoved: false,
-
-            whiteLeftRookMoved: false,
-            whiteRightRookMoved: false,
-
-            blackLeftRookMoved: false,
-            blackRightRookMoved: false
-        });
+        setCastleState(initCastleState);
         setGameResult(null);
     };
 

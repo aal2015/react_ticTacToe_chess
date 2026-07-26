@@ -9,6 +9,17 @@ export const initBoard = [
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
 ];
 
+export const initCastleState = {
+        whiteKingMoved: false,
+        blackKingMoved: false,
+
+        whiteLeftRookMoved: false,
+        whiteRightRookMoved: false,
+
+        blackLeftRookMoved: false,
+        blackRightRookMoved: false
+    };
+
 export const pieceNotation = {
     p: '',
     r: 'R',
