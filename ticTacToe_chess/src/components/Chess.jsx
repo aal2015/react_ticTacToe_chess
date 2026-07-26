@@ -160,10 +160,7 @@ const Chess = () => {
             return false;
         }
 
-        // =========================
         // PAWN PROMOTION
-        // =========================
-
         if (result.move.isPromotion) {
             setPromotionData({
                 boardClone: result.board.board,
@@ -179,16 +176,10 @@ const Chess = () => {
             return;
         }
 
-        // =========================
         // GAME RESULT
-        // =========================
-
         updateGameResult(result.game.checkmate, result.game.stalemate);
 
-        // =========================
         // MOVE HISTORY
-        // =========================
-
         setMoveHistory(prev => {
             const history = [...prev];
             if (turn === "white") {
@@ -204,10 +195,7 @@ const Chess = () => {
             return history;
         });
 
-        // =========================
         // UPDATE BOARD
-        // =========================
-
         setBoard(result.board.board);
         setCastleState(
             result.board.castleState
@@ -216,10 +204,7 @@ const Chess = () => {
             result.board.enPassantState
         );
 
-        // =========================
         // NEXT TURN
-        // =========================
-
         setTurn(
             turn === "white"
                 ? "black"
@@ -239,18 +224,12 @@ const Chess = () => {
             return;
         }
 
-        // =========================
         // EMPTY SQUARE
-        // =========================
-
         if (board[row][col] === '') {
             return;
         }
 
-        // =========================
         // SELECT PIECE
-        // =========================
-
         setSelected([row, col]);
     };
 
