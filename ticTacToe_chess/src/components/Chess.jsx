@@ -239,15 +239,10 @@ const Chess = () => {
         playerColor
     );
 
-    useEffect(() => {
-        if (turn === playerColor) {
-            return;
-        }
-
-        console.log("Ai turn");
+    const makeAIMove = () => {
         const algo = new ChessMinMaxAlgo();
 
-        const minMaxResult = algo.minMax(
+        const result = algo.minMax(
             board,
             turn,
             enPassantState,
@@ -259,10 +254,22 @@ const Chess = () => {
             Infinity
         );
 
-        if (!executeMove(minMaxResult.move.from, minMaxResult.move.to)) {
-            console.log("MinMax algo played invalid move!");
+        executeMove(result.move.from, result.move.to);
+    };
+
+    useEffect(() => {
+        if (turn !== playerColor) {
+            const id = setTimeout(makeAIMove, 0);
+            return () => clearTimeout(id);
         }
-    }, [turn]);
+    }, [
+        board,
+        turn,
+        castleState,
+        enPassantState,
+        moveCount,
+        playerColor
+    ]);
 
     return (
         <div
