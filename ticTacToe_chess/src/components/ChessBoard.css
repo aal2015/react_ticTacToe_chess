@@ -13,6 +13,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    position: relative;
 }
 
 .whiteSquare {
@@ -27,6 +29,7 @@
     color: #111;
     font-size: 35px;
     cursor: grab;
+    z-index: 2;
 }
 
 .whitePiece {
@@ -38,6 +41,7 @@
         drop-shadow(-1px 0 black)
         drop-shadow(0 1px black)
         drop-shadow(0 -1px black);
+        z-index: 2;
 }
 
 .activeSelect {
@@ -46,4 +50,21 @@
 
 .lastMoveHighlight {
     background-color: #6db6fb;
+}
+
+.possibleMoveDot {
+    width: 12px;
+    height: 12px;
+
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, 0.30);
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    z-index: 1;
+    pointer-events: none;
 }

@@ -32,6 +32,7 @@ const ChessBoard = ({
     onPieceSelect,
     activeSelect,
     lastMove,
+    possibleMoves,
     playerColor
 }) => {
 
@@ -158,6 +159,16 @@ const ChessBoard = ({
                                         cellIndex === lastMove.to[1])
                                 );
 
+                            // =========================
+                            // POSSIBLE MOVE HIGHLIGHT
+                            // =========================
+
+                            const isPossibleMove =
+                                possibleMoves &&
+                                possibleMoves.some(
+                                    ([r, c]) => r === rowIndex && c === cellIndex
+                                );
+
                             return (
                                 <div
                                     key={`${displayRow}-${displayCol}`}
@@ -180,6 +191,11 @@ const ChessBoard = ({
                                         )
                                     }
                                 >
+                                    {/* Possible move dot - rendered on top of everything */}
+                                    {isPossibleMove && (
+                                        <div className="possibleMoveDot"></div>
+                                    )}
+                                    
                                     {cell && (
                                         <FontAwesomeIcon
                                             icon={pieceIcons[cell]}

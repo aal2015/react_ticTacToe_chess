@@ -3,7 +3,7 @@ import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
 import ResetGameModal from './GameResetModal';
-import { processPlayerMove } from './moveValidCheck';
+import { processPlayerMove, generateMovesForPiece } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
 import { initBoard, getStatusInfo, initCastleState } from './chessUtil';
@@ -16,9 +16,9 @@ const Chess = () => {
     const [winner, setWinner] = useState(null);
     const [gameResult, setGameResult] = useState(null);
     const [selected, setSelected] = useState(null);
+    const [possibleMoves, setPossibleMoves] = useState([]);
     const [moveCount, setMoveCount] = useState(0);
     const [enPassantState, setEnPassantState] = useState(null);
-    // const [lastMove, setLastMove] = useState(null);
     const [lastMove, setLastMove] = useState(null);
     const [playerColor, setPlayerColor] = useState("white");
     const [moveHistory, setMoveHistory] = useState([]);
@@ -202,6 +202,7 @@ const Chess = () => {
         );
         setMoveCount(moveCount + 1);
         setSelected(null);
+        setPossibleMoves([]); // Clear possible moves after move completes
         return true;
     }
 
@@ -209,6 +210,7 @@ const Chess = () => {
         if (selected) {
             if (!executeMove(selected, [row, col])) {
                 setSelected(null);
+                setPossibleMoves([]); // Clear possible moves when deselecting
             }
 
             return;
@@ -219,8 +221,21 @@ const Chess = () => {
             return;
         }
 
-        // SELECT PIECE
+        // SELECT PIECE - Calculate and store possible moves
+        const piece = board[row][col];
+        const pieceColor = piece[0] === 'w' ? 'white' : 'black';
+        
         setSelected([row, col]);
+        setPossibleMoves(generateMovesForPiece(
+            board,
+            piece,
+            row,
+            col,
+            pieceColor,
+            castleState,
+            enPassantState,
+            moveCount
+        ));
     };
 
     const status = getStatusInfo(
@@ -304,6 +319,7 @@ const Chess = () => {
                     activeSelect={selected}
                     lastMove={lastMove}
                     playerColor={playerColor}
+                    possibleMoves={possibleMoves}
                 />
 
             </div>
