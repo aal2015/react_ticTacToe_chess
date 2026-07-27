@@ -127,7 +127,7 @@ const ChessSideBar = ({
                     Reset
                 </button>
 
-                <button
+                {/* <button
                     className="
                                     px-4
                                     py-2
@@ -140,7 +140,7 @@ const ChessSideBar = ({
                                 "
                 >
                     Export
-                </button>
+                </button> */}
             </div>
         </div>
     );
