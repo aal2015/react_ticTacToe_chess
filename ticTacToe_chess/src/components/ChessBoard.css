@@ -68,3 +68,7 @@
     z-index: 1;
     pointer-events: none;
 }
+
+.captureHighlight {
+   background-color: #FAA0A0;
+}

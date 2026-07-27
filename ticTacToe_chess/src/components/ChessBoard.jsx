@@ -169,6 +169,11 @@ const ChessBoard = ({
                                     ([r, c]) => r === rowIndex && c === cellIndex
                                 );
 
+                            const isCaptureMove =
+                                isPossibleMove &&
+                                cell &&
+                                cell[0] !== (playerColor === "white" ? "w" : "b");
+
                             return (
                                 <div
                                     key={`${displayRow}-${displayCol}`}
@@ -180,8 +185,11 @@ const ChessBoard = ({
                                         ${isSelected
                                             ? 'activeSelect'
                                             : ''}
-                                        ${isLastMove 
+                                        ${isLastMove
                                             ? 'lastMoveHighlight'
+                                            : ''}
+                                        ${isCaptureMove 
+                                            ? 'captureHighlight'
                                             : ''}
                                     `}
                                     onClick={() =>
@@ -195,7 +203,7 @@ const ChessBoard = ({
                                     {isPossibleMove && (
                                         <div className="possibleMoveDot"></div>
                                     )}
-                                    
+
                                     {cell && (
                                         <FontAwesomeIcon
                                             icon={pieceIcons[cell]}
