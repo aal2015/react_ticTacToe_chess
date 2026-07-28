@@ -56,7 +56,7 @@ const ChessBoard = ({
 
     return (
         <div className="flex flex-col items-center">
-            
+
             {/* BOARD + RANK LABELS */}
             <div className="flex">
                 {/* RANK LABELS */}
@@ -65,8 +65,8 @@ const ChessBoard = ({
                         <div
                             key={rank}
                             className="
-                                h-[60px]
-                                w-[30px]
+                                w-6 md:w-[30px]
+                                h-10 md:h-[60px]
                                 flex
                                 items-center
                                 justify-center
@@ -136,7 +136,7 @@ const ChessBoard = ({
                                         ${isLastMove
                                             ? 'lastMoveHighlight'
                                             : ''}
-                                        ${isCaptureMove 
+                                        ${isCaptureMove
                                             ? 'captureHighlight'
                                             : ''}
                                     `}
@@ -176,8 +176,8 @@ const ChessBoard = ({
                     <div
                         key={file}
                         className="
-                            w-[60px]
-                            h-[30px]
+                            w-10 md:w-[60px]
+                            h-6 md:h-[30px]
                             flex
                             items-center
                             justify-center
