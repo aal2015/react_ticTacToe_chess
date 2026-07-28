@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BackButton from './BackButton';
 import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
@@ -224,7 +225,7 @@ const Chess = () => {
         // SELECT PIECE - Calculate and store possible moves
         const piece = board[row][col];
         const pieceColor = piece[0] === 'w' ? 'white' : 'black';
-        
+
         setSelected([row, col]);
         setPossibleMoves(generateMovesForPiece(
             board,
@@ -276,7 +277,8 @@ const Chess = () => {
         playerColor
     ]);
 
-    return (
+    return (<>
+        <BackButton />
         <div
             className="
             max-w-7xl
@@ -367,7 +369,7 @@ const Chess = () => {
                 onCancel={cancelReset}
             />
         </div>
-    );
+    </>);
 };
 
 export default Chess;

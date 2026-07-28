@@ -3,9 +3,9 @@ import Board from "./TicTacToeBoard";
 import {
     checkWinner, aiPlayMove, checkDraw
 } from './TicTacToeAi';
+import BackButton from './BackButton';
 
 const TicTacToe = () => {
-
     const initialBoard = [
         '', '', '',
         '', '', '',
@@ -23,11 +23,9 @@ const TicTacToe = () => {
         setGameActive(true);
     };
 
-
     const disableGame = () => {
         setGameActive(false);
     };
-
 
     const makeAiMove = (currentBoard, mark) => {
         const aiBoard = aiPlayMove(
@@ -49,16 +47,12 @@ const TicTacToe = () => {
         }
     };
 
-
     const togglePlayer = () => {
-
         const newPlayerMark = playerMark === "X" ? "O" : "X";
 
         setPlayerMark(newPlayerMark);
-
         setBoard(initialBoard);
         enableGame();
-
 
         // AI is X, so AI starts
         if (newPlayerMark === "O") {
@@ -76,7 +70,6 @@ const TicTacToe = () => {
         playerBoard[index] = playerMark;
         setBoard(playerBoard);
 
-
         if (checkWinner(playerBoard)) {
             setWinnerMessage(`Player ${playerMark} wins! Play again?`);
             disableGame();
@@ -93,7 +86,6 @@ const TicTacToe = () => {
         makeAiMove(playerBoard, aiMark);
     };
 
-
     const resetGame = () => {
         setBoard(initialBoard);
         setWinnerMessage("");
@@ -104,15 +96,14 @@ const TicTacToe = () => {
         }
     };
 
-
     return (
         <>
             <div className="flex flex-col items-center gap-4">
+                <BackButton />
 
                 <p className='text-3xl text-white font-bold'>
                     Tic Tac Toe
                 </p>
-
 
                 <div className="flex flex-col items-center gap-1">
                     <button
@@ -135,12 +126,10 @@ const TicTacToe = () => {
                     </p>
                 </div>
 
-
                 <Board
                     boardState={board}
                     onSquareClick={handleSquareClick}
                 />
-
 
                 <button
                     onClick={resetGame}
@@ -156,7 +145,6 @@ const TicTacToe = () => {
                 >
                     Reset
                 </button>
-
 
                 {winnerMessage && (
                     <p className="text-xl text-white font-bold">
