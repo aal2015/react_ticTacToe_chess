@@ -59,7 +59,26 @@ export const aiPlayMove = (boardState, AI_mark) => {
         return boardState;
     }
 
+    // First move randomization
+    const emptySquares = boardState
+        .map((square, index) => square === '' ? index : null)
+        .filter(index => index !== null);
+
+    if (emptySquares.length === 9) {
+
+        const corners = [0, 2, 6, 8];
+
+        const randomCorner =
+            corners[Math.floor(Math.random() * corners.length)];
+
+        boardState[randomCorner] = AI_mark;
+
+        return boardState;
+    }
+
+
     let isMax = AI_mark === 'X';
+
     let [_, step] = minMaxFunc(boardState, isMax);
 
     if (step !== null) {
