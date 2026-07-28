@@ -1,7 +1,5 @@
 import './ChessBoard.css';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
 import {
     faChessPawn,
     faChessRook,
@@ -36,28 +34,16 @@ const ChessBoard = ({
     playerColor
 }) => {
 
-    // =========================
     // DISPLAY -> REAL COORDS
-    // =========================
-
     const getActualRow = (displayRow) => {
-
-        return playerColor === 'white'
-            ? displayRow
-            : 7 - displayRow;
+        return playerColor === 'white' ? displayRow : 7 - displayRow;
     };
 
     const getActualCol = (displayCol) => {
-
-        return playerColor === 'white'
-            ? displayCol
-            : 7 - displayCol;
+        return playerColor === 'white' ? displayCol : 7 - displayCol;
     };
 
-    // =========================
     // BOARD LABELS
-    // =========================
-
     const files =
         playerColor === 'white'
             ? ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -69,23 +55,13 @@ const ChessBoard = ({
             : [1, 2, 3, 4, 5, 6, 7, 8];
 
     return (
-
         <div className="flex flex-col items-center">
-
-            {/* =========================
-                BOARD + RANK LABELS
-            ========================= */}
-
+            
+            {/* BOARD + RANK LABELS */}
             <div className="flex">
-
-                {/* =========================
-                    RANK LABELS
-                ========================= */}
-
+                {/* RANK LABELS */}
                 <div className="flex flex-col">
-
                     {ranks.map((rank) => (
-
                         <div
                             key={rank}
                             className="
@@ -101,54 +77,29 @@ const ChessBoard = ({
                         >
                             {rank}
                         </div>
-
                     ))}
-
                 </div>
 
-                {/* =========================
-                    CHESS BOARD
-                ========================= */}
-
+                {/* CHESS BOARD */}
                 <div id="chessGameBoard">
-
                     {[...Array(8)].map((_, displayRow) =>
-
                         [...Array(8)].map((_, displayCol) => {
-
-                            // =========================
                             // REAL BOARD COORDS
-                            // =========================
+                            const rowIndex = getActualRow(displayRow);
+                            const cellIndex = getActualCol(displayCol);
+                            const cell = boardState[rowIndex][cellIndex];
 
-                            const rowIndex =
-                                getActualRow(displayRow);
-
-                            const cellIndex =
-                                getActualCol(displayCol);
-
-                            const cell =
-                                boardState[rowIndex][cellIndex];
-
-                            // =========================
                             // BOARD COLORS
-                            // =========================
-
                             const isWhiteSquare =
                                 (displayRow + displayCol) % 2 === 0;
 
-                            // =========================
                             // ACTIVE SELECTION
-                            // =========================
-
                             const isSelected =
                                 activeSelect &&
                                 rowIndex === activeSelect[0] &&
                                 cellIndex === activeSelect[1];
 
-                            // =========================
                             // LAST MOVE HIGHLIGHT
-                            // =========================
-
                             const isLastMove =
                                 lastMove &&
                                 (
@@ -159,10 +110,7 @@ const ChessBoard = ({
                                         cellIndex === lastMove.to[1])
                                 );
 
-                            // =========================
                             // POSSIBLE MOVE HIGHLIGHT
-                            // =========================
-
                             const isPossibleMove =
                                 possibleMoves &&
                                 possibleMoves.some(
@@ -220,17 +168,11 @@ const ChessBoard = ({
                     )}
 
                 </div>
-
             </div>
 
-            {/* =========================
-                FILE LABELS
-            ========================= */}
-
+            {/*  FILELABELS */}
             <div className="flex ml-[30px]">
-
                 {files.map((file) => (
-
                     <div
                         key={file}
                         className="
@@ -246,11 +188,8 @@ const ChessBoard = ({
                     >
                         {file}
                     </div>
-
                 ))}
-
             </div>
-
         </div>
     );
 };
