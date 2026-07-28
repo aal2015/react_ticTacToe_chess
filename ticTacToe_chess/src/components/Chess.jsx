@@ -305,15 +305,27 @@ const Chess = () => {
             "
             >
 
-                <p
-                    className={`
-                        text-2xl
-                        font-bold
-                        ${status.textColor}
-                    `}
-                >
-                    {status.text}
-                </p>
+                <div className="flex items-center gap-2 text-2xl font-bold">
+                    <p className="text-white">
+                        Turn:
+                    </p>
+
+                    <div
+                        className={`
+                                    w-26
+                                    px-4
+                                    py-1
+                                    rounded-md
+                                    border
+                                    font-bold
+                                    ${turn === "white"
+                                                        ? "bg-white text-black border-gray-300"
+                                                        : "bg-black text-white border-gray-600"}
+                                `}
+                    >
+                        {turn}
+                    </div>
+                </div>
 
                 <ChessBoard
                     boardState={board}
