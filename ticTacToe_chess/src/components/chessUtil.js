@@ -5,20 +5,22 @@ export const initBoard = [
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
     ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
     ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
 ];
 
 export const initCastleState = {
-        whiteKingMoved: false,
-        blackKingMoved: false,
+    whiteKingMoved: false,
+    blackKingMoved: false,
 
-        whiteLeftRookMoved: false,
-        whiteRightRookMoved: false,
+    whiteLeftRookMoved: false,
+    whiteRightRookMoved: false,
 
-        blackLeftRookMoved: false,
-        blackRightRookMoved: false
-    };
+    blackLeftRookMoved: false,
+    blackRightRookMoved: false
+};
 
 export const pieceNotation = {
     p: '',
@@ -27,6 +29,15 @@ export const pieceNotation = {
     b: 'B',
     q: 'Q',
     k: 'K'
+};
+
+export const chessPiecePoints = {
+    p: 1,
+    n: 3,
+    b: 3,
+    r: 5,
+    q: 9,
+    k: 0
 };
 
 export const generateMoveNotation = ({
@@ -168,14 +179,112 @@ export const getStatusInfo = (
 
     return {
         text:
-            `${turn}'s turn (${
-                turn === playerColor
-                    ? "you"
-                    : "AI"
+            `${turn}'s turn (${turn === playerColor
+                ? "you"
+                : "AI"
             })`,
         textColor:
             turn === "white"
                 ? "text-white"
                 : "text-black"
     };
+};
+
+
+export const calculateMaterialScore = (board) => {
+    let whiteScore = 0;
+    let blackScore = 0;
+
+    for (const row of board) {
+        for (const piece of row) {
+            if (piece === '') continue;
+
+            const value = chessPiecePoints[piece[1]];
+
+            if (piece[0] === 'w') {
+                whiteScore += value;
+            } else {
+                blackScore += value;
+            }
+        }
+    }
+
+    return {
+        white: whiteScore,
+        black: blackScore,
+        difference: whiteScore - blackScore
+    };
+};
+
+export const getCapturedPieces = (board) => {
+    const initialPieces = {
+        w: {
+            p: 8,
+            r: 2,
+            n: 2,
+            b: 2,
+            q: 1,
+            k: 1
+        },
+        b: {
+            p: 8,
+            r: 2,
+            n: 2,
+            b: 2,
+            q: 1,
+            k: 1
+        }
+    };
+
+    const currentPieces = {
+        w: {
+            p: 0,
+            r: 0,
+            n: 0,
+            b: 0,
+            q: 0,
+            k: 0
+        },
+        b: {
+            p: 0,
+            r: 0,
+            n: 0,
+            b: 0,
+            q: 0,
+            k: 0
+        }
+    };
+
+    // Count pieces currently on the board
+    for (const row of board) {
+        for (const piece of row) {
+            if (piece === '') continue;
+
+            const color = piece[0];
+            const type = piece[1];
+
+            currentPieces[color][type]++;
+        }
+    }
+
+    const captured = {
+        w: [],
+        b: []
+    };
+
+    // Find missing pieces
+    for (const color of ['w', 'b']) {
+        for (const type of ['p', 'r', 'n', 'b', 'q', 'k']) {
+
+            const missing =
+                initialPieces[color][type] -
+                currentPieces[color][type];
+
+            for (let i = 0; i < missing; i++) {
+                captured[color].push(type);
+            }
+        }
+    }
+
+    return captured;
 };

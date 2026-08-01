@@ -7,7 +7,8 @@ import ResetGameModal from './GameResetModal';
 import { processPlayerMove, generateMovesForPiece } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
-import { initBoard, getStatusInfo, initCastleState } from './chessUtil';
+import {
+    initBoard, getStatusInfo, initCastleState, } from './chessUtil';
 import { ChessMinMaxAlgo } from './ChessAI';
 
 const Chess = () => {
@@ -292,9 +293,7 @@ const Chess = () => {
         "
         >
 
-            {/* =========================
-            LEFT SIDE
-        ========================= */}
+            {/* LEFT SIDE */}
 
             <div
                 className="
@@ -319,8 +318,8 @@ const Chess = () => {
                                     border
                                     font-bold
                                     ${turn === "white"
-                                                        ? "bg-white text-black border-gray-300"
-                                                        : "bg-black text-white border-gray-600"}
+                                ? "bg-white text-black border-gray-300"
+                                : "bg-black text-white border-gray-600"}
                                 `}
                     >
                         {turn}
@@ -338,10 +337,7 @@ const Chess = () => {
 
             </div>
 
-            {/* =========================
-            RIGHT SIDE
-        ========================= */}
-
+            {/* RIGHT SIDE */}
             <div
                 className="
                 flex

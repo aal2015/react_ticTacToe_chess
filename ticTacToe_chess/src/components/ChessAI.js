@@ -6,15 +6,7 @@ import {
     handleCastleMove,
     handleEnPassant
 } from './moveValidCheck';
-
-const chessPiecePoints = {
-    p: 1,
-    n: 3,
-    b: 3,
-    r: 5,
-    q: 9,
-    k: 0
-};
+import  { chessPiecePoints } from './chessUtil';
 
 const simulateMove = (
     board, castleState, piece, fromRow,
