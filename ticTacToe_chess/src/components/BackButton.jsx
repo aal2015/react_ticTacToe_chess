@@ -8,7 +8,7 @@ const BackButton = () => {
             onClick={() => navigate("/")}
             className="
                         self-center
-                        mt-4
+                        mt-3
                         px-4
                         py-2
                         rounded-lg

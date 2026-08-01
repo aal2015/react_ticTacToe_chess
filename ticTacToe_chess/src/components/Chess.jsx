@@ -8,7 +8,8 @@ import { processPlayerMove, generateMovesForPiece } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
 import {
-    initBoard, getStatusInfo, initCastleState, } from './chessUtil';
+    initBoard, getStatusInfo, initCastleState,
+} from './chessUtil';
 import { ChessMinMaxAlgo } from './ChessAI';
 
 const Chess = () => {
@@ -279,7 +280,7 @@ const Chess = () => {
     ]);
 
     return (<>
-        <BackButton />
+    <BackButton />
         <div
             className="
             max-w-7xl
@@ -295,37 +296,7 @@ const Chess = () => {
 
             {/* LEFT SIDE */}
 
-            <div
-                className="
-                flex
-                flex-col
-                items-center
-                gap-4
-            "
-            >
-
-                <div className="flex items-center gap-2 text-2xl font-bold">
-                    <p className="text-white">
-                        Turn:
-                    </p>
-
-                    <div
-                        className={`
-                                    w-26
-                                    px-4
-                                    py-1
-                                    rounded-md
-                                    border
-                                    font-bold
-                                    ${turn === "white"
-                                ? "bg-white text-black border-gray-300"
-                                : "bg-black text-white border-gray-600"}
-                                `}
-                    >
-                        {turn}
-                    </div>
-                </div>
-
+            <div className="items-center">
                 <ChessBoard
                     boardState={board}
                     onPieceSelect={pieceSelect}
@@ -347,6 +318,28 @@ const Chess = () => {
                 lg:top-5
             "
             >
+                <div className="flex items-center justify-center gap-2 text-2xl font-bold">
+                    <p className="text-white">
+                        Turn:
+                    </p>
+
+                    <div
+                        className={`
+                                    w-26
+                                    px-4
+                                    py-1
+                                    rounded-md
+                                    border
+                                    font-bold
+                                    ${turn === "white"
+                                ? "bg-white text-black border-gray-300"
+                                : "bg-black text-white border-gray-600"}
+                                `}
+                    >
+                        {turn}
+                    </div>
+                </div>
+
                 <ChessSideBar
                     moveHistory={moveHistory}
                     onReset={onClickResetButton}
