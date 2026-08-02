@@ -292,15 +292,3 @@ const ChessBoard = ({
 };
 
 export default ChessBoard;
-
-
-// {/* TOP - Black pieces captured by White */}
-//                 <div>
-//                     {renderCapturedPieces(topCapturedPieces)}
-//                 </div>
-
-
-//                 {/* BOTTOM - White pieces captured by Black */}
-//                 <div>
-//                     {renderCapturedPieces(bottomCapturedPieces)}
-//                 </div>
