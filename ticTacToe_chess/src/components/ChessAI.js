@@ -6,7 +6,11 @@ import {
     handleCastleMove,
     handleEnPassant
 } from './moveValidCheck';
-import  { chessPiecePoints } from './chessUtil';
+import { chessPiecePoints } from './chessUtil';
+import {
+    knightPositionValue, kingOpeningTable, bishopTable, queenOpeningTable,
+    pawnOpeningTable, pawnEndgameTable, rookTable
+} from './pieceSquareTables';
 
 const simulateMove = (
     board, castleState, piece, fromRow,
@@ -106,19 +110,100 @@ const simulateMove = (
 export class ChessMinMaxAlgo {
     constructor() { }
 
-    evaluateBoard(board) {
+    getPieceScore(pieceType, row, col, isOpening, pieceColor) {
         let score = 0;
+
+        // Flip the board vertically for Black
+        const tableRow = pieceColor === 'b'
+            ? 7 - row
+            : row;
+
+        switch (pieceType) {
+            case 'k':
+                if (isOpening) {
+                    score = kingOpeningTable[tableRow][col];
+                }
+                break;
+
+            case 'q':
+                if (isOpening) {
+                    score = queenOpeningTable[tableRow][col];
+                }
+                break;
+
+            case 'b':
+                score = bishopTable[tableRow][col];
+                break;
+
+            case 'n':
+                score = knightPositionValue[tableRow][col];
+                break;
+
+            case 'r':
+                score = rookTable[tableRow][col];
+                break;
+
+            case 'p':
+                if (isOpening) {
+                    score = pawnOpeningTable[tableRow][col];
+                } else {
+                    score = pawnEndgameTable[tableRow][col];
+                }
+                break;
+        }
+
+        return score;
+    }
+
+    evaluateBoard(board, moveCount) {
+        let totalMaterial = 0;
+
+        // First pass: calculate remaining material
         for (let row = 0; row < 8; row++) {
             for (let col = 0; col < 8; col++) {
                 const piece = board[row][col];
+
                 if (piece === "") continue;
 
-                const value = chessPiecePoints[piece[1]];
+                totalMaterial += chessPiecePoints[piece[1]];
+            }
+        }
+
+        const isOpening =
+            totalMaterial >= 60 && moveCount < 20;
+
+        let score = 0;
+
+        // Second pass: evaluate position
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const piece = board[row][col];
+                const pieceColor = piece[0];
+
+                if (piece === "") continue;
+
+                const pieceType = piece[1];
+                const value = chessPiecePoints[pieceType];
 
                 if (piece[0] === "w") {
                     score += value;
                 } else {
                     score -= value;
+                }
+
+                const piecePositionScore =
+                    this.getPieceScore(
+                        pieceType,
+                        row,
+                        col,
+                        isOpening,
+                        pieceColor
+                    );
+
+                if (piece[0] === "w") {
+                    score += piecePositionScore;
+                } else {
+                    score -= piecePositionScore;
                 }
             }
         }
@@ -157,7 +242,7 @@ export class ChessMinMaxAlgo {
 
         if (curDepth == MaxDepth) {
             return {
-                score: this.evaluateBoard(board),
+                score: this.evaluateBoard(board, moveCount),
                 move: null
             };
         }
