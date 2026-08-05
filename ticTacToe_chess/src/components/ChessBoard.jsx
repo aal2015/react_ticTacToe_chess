@@ -95,6 +95,24 @@ const ChessBoard = ({
     return (
         <>
             <div className="flex flex-col items-center">
+                <div className="w-full max-w-[480px] min-h-[32px] flex items-center justify-start gap-2 mb-1">
+                    <span className="text-white font-bold">
+                        BOT
+                    </span>
+
+                    <div className="flex items-center gap-1">
+                        {renderCapturedPieces(
+                            topCapturedPieces,
+                            playerColor === "white" ? "w" : "b"
+                        )}
+                    </div>
+
+                    <span className="text-white font-bold">
+                        {materialAdvantage < 0
+                            ? `+${Math.abs(materialAdvantage)}`
+                            : ''}
+                    </span>
+                </div>
 
                 {/* BOARD + RANK LABELS */}
                 <div className="flex">
@@ -229,63 +247,25 @@ const ChessBoard = ({
                         </div>
                     ))}
                 </div>
-            </div>
 
+                <div className="w-full max-w-[480px] min-h-[32px] flex items-center justify-start gap-2 mt-1">
+                    <span className="text-white font-bold">
+                        PLAYER
+                    </span>
 
-            <div className="w-full max-w-[480px] mt-2">
+                    <div className="flex items-center gap-1">
+                        {renderCapturedPieces(
+                            bottomCapturedPieces,
+                            playerColor === "white" ? "b" : "w"
+                        )}
+                    </div>
 
-                <table className="w-full text-white text-center border-collapse">
-
-                    <thead>
-                        <tr className="border-b border-white/30">
-                            <th className="text-left py-2"></th>
-                            <th className="py-2">White</th>
-                            <th className="py-2">Black</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        <tr className="border-b border-white/10">
-                            <td className="text-left py-2 font-semibold">
-                                Captured
-                            </td>
-
-                            <td className="py-2">
-                                <div className="flex flex-wrap justify-center gap-1">
-                                    {renderCapturedPieces(capturedData.b, 'b')}
-                                </div>
-                            </td>
-
-                            <td className="py-2">
-                                <div className="flex flex-wrap justify-center gap-1">
-                                    {renderCapturedPieces(capturedData.w, 'w')}
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td className="text-left py-2 font-semibold">
-                                Advantage
-                            </td>
-
-                            <td className="py-2 font-bold">
-                                {materialAdvantage > 0
-                                    ? `+${materialAdvantage}`
-                                    : ''}
-                            </td>
-
-                            <td className="py-2 font-bold">
-                                {materialAdvantage < 0
-                                    ? `+${Math.abs(materialAdvantage)}`
-                                    : ''}
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
+                    <span className="text-white font-bold">
+                        {materialAdvantage > 0
+                            ? `+${materialAdvantage}`
+                            : ''}
+                    </span>
+                </div>
             </div>
         </>
     );
