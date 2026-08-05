@@ -49,6 +49,31 @@ const pieceIcons = {
     bk: faChessKing
 };
 
+const PlayerMaterial = ({
+    label,
+    pieces,
+    pieceColor,
+    advantage
+}) => {
+    return (
+        <div className="w-full max-w-[480px] min-h-[32px] flex items-center justify-start gap-2">
+            <span className="text-white font-bold">
+                {label}
+            </span>
+
+            <div className="flex items-center gap-1">
+                {renderCapturedPieces(pieces, pieceColor)}
+            </div>
+
+            {advantage > 0 && (
+                <span className="text-white font-bold">
+                    +{advantage}
+                </span>
+            )}
+        </div>
+    );
+};
+
 const ChessBoard = ({
     boardState,
     onPieceSelect,
@@ -92,27 +117,21 @@ const ChessBoard = ({
             ? capturedData.b
             : capturedData.w;
 
+    const botAdvantage =
+        materialAdvantage < 0 ? Math.abs(materialAdvantage) : 0;
+
+    const playerAdvantage =
+        materialAdvantage > 0 ? materialAdvantage : 0;
+
     return (
         <>
             <div className="flex flex-col items-center">
-                <div className="w-full max-w-[480px] min-h-[32px] flex items-center justify-start gap-2 mb-1">
-                    <span className="text-white font-bold">
-                        BOT
-                    </span>
-
-                    <div className="flex items-center gap-1">
-                        {renderCapturedPieces(
-                            topCapturedPieces,
-                            playerColor === "white" ? "w" : "b"
-                        )}
-                    </div>
-
-                    <span className="text-white font-bold">
-                        {materialAdvantage < 0
-                            ? `+${Math.abs(materialAdvantage)}`
-                            : ''}
-                    </span>
-                </div>
+                <PlayerMaterial
+                    label="BOT"
+                    pieces={topCapturedPieces}
+                    pieceColor={playerColor === "white" ? "w" : "b"}
+                    advantage={botAdvantage}
+                />
 
                 {/* BOARD + RANK LABELS */}
                 <div className="flex">
@@ -248,24 +267,12 @@ const ChessBoard = ({
                     ))}
                 </div>
 
-                <div className="w-full max-w-[480px] min-h-[32px] flex items-center justify-start gap-2 mt-1">
-                    <span className="text-white font-bold">
-                        PLAYER
-                    </span>
-
-                    <div className="flex items-center gap-1">
-                        {renderCapturedPieces(
-                            bottomCapturedPieces,
-                            playerColor === "white" ? "b" : "w"
-                        )}
-                    </div>
-
-                    <span className="text-white font-bold">
-                        {materialAdvantage > 0
-                            ? `+${materialAdvantage}`
-                            : ''}
-                    </span>
-                </div>
+                <PlayerMaterial
+                    label="PLAYER"
+                    pieces={bottomCapturedPieces}
+                    pieceColor={playerColor === "white" ? "b" : "w"}
+                    advantage={playerAdvantage}
+                />
             </div>
         </>
     );
