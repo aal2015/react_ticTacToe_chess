@@ -117,12 +117,20 @@ const ChessBoard = ({
             ? capturedData.b
             : capturedData.w;
 
-    const botAdvantage =
-        materialAdvantage < 0 ? Math.abs(materialAdvantage) : 0;
+    const playerMaterialAdvantage =
+        playerColor === "white"
+            ? materialScore.difference
+            : -materialScore.difference;
 
     const playerAdvantage =
-        materialAdvantage > 0 ? materialAdvantage : 0;
+        playerMaterialAdvantage > 0
+            ? playerMaterialAdvantage
+            : 0;
 
+    const botAdvantage =
+        playerMaterialAdvantage < 0
+            ? Math.abs(playerMaterialAdvantage)
+            : 0;
     return (
         <>
             <div className="flex flex-col items-center">
