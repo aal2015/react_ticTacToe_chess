@@ -43,7 +43,7 @@ describe("evaluateBoard", () => {
         board[7][7] = "wk";
         board[3][3] = "br";
 
-        expect(algo.evaluateBoard(board)).toBe(-5);
+        expect(algo.evaluateBoard(board, 50)).toBe(-5.3); // only rook as piece value position which is not zero
     });
 
     it("computes mixed material correctly", () => {
@@ -57,7 +57,7 @@ describe("evaluateBoard", () => {
         board[3][3] = "bp";
 
         // 9 + 5 - 1 = 13
-        expect(algo.evaluateBoard(board)).toBe(13);
+        expect(algo.evaluateBoard(board, 50)).toBe(12.8); // 13 + 0 + 0 - 0.2 + 0.3 - 0.3 
     });
 
 });
@@ -227,7 +227,7 @@ describe("minMax terminal states", () => {
             "white",
             null, // no en passant
             {},
-            0,
+            50,
             0,
             1,
             -Infinity,
@@ -240,7 +240,7 @@ describe("minMax terminal states", () => {
             promotion: null
         });
 
-        expect(result.score).toBe(1);
+        expect(result.score).toBe(1.8);
     });
 
     it("prefers en passant capture when it wins material", () => {
@@ -290,7 +290,7 @@ describe("minMax terminal states", () => {
             promotion: null
         });
 
-        expect(result.score).toBe(1);
+        expect(result.score).toBe(1.8);
     });
 
     it("finds a checking rook move", () => {
