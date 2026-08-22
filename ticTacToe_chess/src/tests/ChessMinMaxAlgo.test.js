@@ -1,19 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { ChessMinMaxAlgo } from "../components/ChessAI";
+import { initCastleState as castleState } from "../components/chessUtil";
 
 const algo = new ChessMinMaxAlgo();
 
 const emptyBoard = () =>
     Array.from({ length: 8 }, () => Array(8).fill(""));
-
-const castleState = {
-    whiteKingMoved: false,
-    blackKingMoved: false,
-    whiteLeftRookMoved: false,
-    whiteRightRookMoved: false,
-    blackLeftRookMoved: false,
-    blackRightRookMoved: false
-};
 
 describe("evaluateBoard", () => {
 
@@ -255,15 +247,6 @@ describe("minMax terminal states", () => {
 
         // Black pawn on e5
         board[3][4] = "bp";
-
-        const castleState = {
-            whiteKingMoved: false,
-            blackKingMoved: false,
-            whiteLeftRookMoved: false,
-            whiteRightRookMoved: false,
-            blackLeftRookMoved: false,
-            blackRightRookMoved: false
-        };
 
         const enPassantState = {
             row: 3,

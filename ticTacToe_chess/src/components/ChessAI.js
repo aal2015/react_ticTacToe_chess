@@ -107,6 +107,114 @@ const simulateMove = (
     };
 };
 
+export const makeMove = (
+    board, castleState, piece, fromRow,
+    fromCol, toRow, toCol, moveCount
+) => {
+    let moveState = {
+        fromSquare: [fromRow, fromCol],
+        toSquare: [toRow, toCol],
+        movingPiece: piece,
+        capturedPiece: null,
+        capturedSquare: null,
+        // isCastleKingSide,
+        // isCastleQueenSide,
+    };
+
+    const pieceColor = piece[0] === "w" ? "white" : "black";
+
+    // EN PASSANT CAPTURE
+    const { isEnPassant } = handleEnPassant(
+        board,
+        piece,
+        pieceColor,
+        fromCol,
+        toRow,
+        toCol
+    );
+
+    if (isEnPassant) {
+        moveState.capturedPiece = pieceColor === 'white' ? 'bp' : 'wp';
+        moveState.capturedSquare = [fromRow, toCol];
+    } else if (board[toRow][toCol] !== '') {
+        moveState.capturedPiece = board[toRow][toCol];
+        moveState.capturedSquare = [toRow, toCol];
+    }
+
+    // handle castle
+    const {
+        castleState: newCastleState,
+        // isCastleKingSide,
+        // isCastleQueenSide
+    } = handleCastleMove(
+        board,
+        castleState,
+        piece,
+        fromRow,
+        fromCol,
+        toRow,
+        toCol
+    );
+
+    // moveState.isCastleKingSide = isCastleKingSide;
+    // moveState.isCastleQueenSide = isCastleQueenSide;
+
+    // simulate move
+    board[toRow][toCol] = piece;
+    board[fromRow][fromCol] = '';
+
+    // pawn promotion
+    let promotionPiece = null;
+    if (
+        piece[1] === "p" &&
+        (
+            (pieceColor === "white" && toRow === 0) ||
+            (pieceColor === "black" && toRow === 7)
+        )
+    ) {
+        // Always promote to queen
+        board[toRow][toCol] = piece[0] + "q";
+        promotionPiece = "q";
+    }
+
+    // update en passant
+    let nextEnPassantState = null;
+    if (
+        piece[1] === "p" &&
+        Math.abs(toRow - fromRow) === 2
+    ) {
+
+        nextEnPassantState = {
+            row: toRow,
+            col: toCol,
+            pieceColor,
+            moveCount: moveCount + 1
+        };
+    }
+
+    const enemyColor =
+        pieceColor === "white"
+            ? "black"
+            : "white";
+
+    return {
+        moveState,
+        castleState: newCastleState,
+        nextEnPassantState,
+        promotionPiece,
+
+        isSelfCheck: wouldKingBeInCheckAfterMove(
+            board,
+            pieceColor
+        ),
+
+        givesCheck: wouldKingBeInCheckAfterMove(
+            board,
+            enemyColor
+        )
+    };
+}
+
 export class ChessMinMaxAlgo {
     constructor() { }
 
