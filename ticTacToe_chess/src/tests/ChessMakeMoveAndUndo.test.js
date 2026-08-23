@@ -36,6 +36,40 @@ describe("makeMove", () => {
         });
     })
 
+    it("White rook captures black knight. 'capturedPiece' and 'capturedSquare' of moveState should be properly updated.", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White rook on a1
+        board[7][0] = "wp";
+
+        // Black knight on a7
+        board[1][0] = "bn";
+
+        const result = makeMove(
+            board,
+            initCastleState,
+            "wr",
+            7, 0,
+            1, 0,
+            0
+        );
+
+        expect(board[7][0]).toBe("");
+        expect(board[1][0]).toBe("wr");
+
+        expect(result.moveState).toEqual({
+            fromSquare: [7, 0],
+            toSquare: [1, 0],
+            movingPiece: "wr",
+            capturedPiece: "bn",
+            capturedSquare: [1, 0]
+        });
+    })
+
     it("performs en passant capture", () => {
         const board = emptyBoard();
 
@@ -48,13 +82,6 @@ describe("makeMove", () => {
 
         // Black pawn on e5
         board[3][4] = "bp";
-
-        const enPassantState = {
-            row: 3,
-            col: 4,
-            pieceColor: "black",
-            moveCount: 1
-        };
 
         const result = makeMove(
             board,
