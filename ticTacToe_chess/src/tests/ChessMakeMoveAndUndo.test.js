@@ -104,6 +104,71 @@ describe("makeMove", () => {
         });
     })
 
+    it("Correctly evaluates that the white move leaves the king in check", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White knight on e2
+        board[6][4] = "wn";
+
+        // Black rook on d6
+        board[1][4] = "br";
+
+        const result = makeMove(
+            board,
+            initCastleState,
+            "wn",
+            6, 4,
+            7, 6,
+            0
+        );
+
+        expect(result.moveState).toEqual({
+            fromSquare: [6, 4],
+            toSquare: [7, 6],
+            movingPiece: "wn",
+            capturedPiece: null,
+            capturedSquare: null
+        });
+
+        expect(result.isSelfCheck).toEqual(true);
+        expect(result.givesCheck).toEqual(false);
+    });
+
+    it("Correctly evaluates that the white move gives black king check", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White rook on f2
+        board[6][5] = "wr";
+
+        const result = makeMove(
+            board,
+            initCastleState,
+            "wr",
+            6, 5,
+            6, 4,
+            0
+        );
+
+        expect(result.moveState).toEqual({
+            fromSquare: [6, 5],
+            toSquare: [6, 4],
+            movingPiece: "wr",
+            capturedPiece: null,
+            capturedSquare: null
+        });
+
+        expect(result.isSelfCheck).toEqual(false);
+        expect(result.givesCheck).toEqual(true);
+    });
+
     it("after a move which does not do castling, or move king or rooks, castling state should still be init", () => {
         const board = emptyBoard();
 
