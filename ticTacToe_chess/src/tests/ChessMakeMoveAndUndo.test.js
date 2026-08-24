@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { makeMove } from "../components/ChessAI";
+import { makeMove, undoMove } from "../components/ChessAI";
 import { initBoard, initCastleState } from "../components/chessUtil";
 
 const emptyBoard = () =>
@@ -7,7 +7,7 @@ const emptyBoard = () =>
 
 describe("makeMove", () => {
     it("moves a white pawn two spaces from the start square", () => {
-        const board = initBoard;
+        const board = structuredClone(initBoard);
         const result = makeMove(
             board,
             initCastleState,
@@ -576,4 +576,38 @@ describe("makeMove", () => {
             blackRightRookMoved: true
         });
     });
+})
+
+describe("undoMove", () => {
+    it("after white plays pawn e4 as the first starting move, undoMove functio will revert the move back correctly", () => {        
+        const board = structuredClone(initBoard);
+
+        // play the starting e4 move
+        const result = makeMove(
+            board,
+            initCastleState,
+            "wp",
+            6, 4,
+            4, 4,
+            0
+        );
+
+        expect(board[6][4]).toBe("");
+        expect(board[4][4]).toBe("wp");
+
+        expect(result.moveState).toEqual({
+            fromSquare: [6, 4],
+            toSquare: [4, 4],
+            movingPiece: "wp",
+            capturedPiece: null,
+            capturedSquare: null
+        });
+
+        // undo move
+        undoMove(board, result.moveState, result.castleState, result.nextEnPassantState)
+
+        expect(board).toEqual(initBoard);
+    })
+
+    
 })

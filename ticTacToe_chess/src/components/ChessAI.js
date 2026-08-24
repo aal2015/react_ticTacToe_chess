@@ -117,8 +117,6 @@ export const makeMove = (
         movingPiece: piece,
         capturedPiece: null,
         capturedSquare: null,
-        // isCastleKingSide,
-        // isCastleQueenSide,
     };
 
     const pieceColor = piece[0] === "w" ? "white" : "black";
@@ -144,8 +142,8 @@ export const makeMove = (
     // handle castle
     const {
         castleState: newCastleState,
-        // isCastleKingSide,
-        // isCastleQueenSide
+        isCastleKingSide,
+        isCastleQueenSide
     } = handleCastleMove(
         board,
         castleState,
@@ -155,9 +153,6 @@ export const makeMove = (
         toRow,
         toCol
     );
-
-    // moveState.isCastleKingSide = isCastleKingSide;
-    // moveState.isCastleQueenSide = isCastleQueenSide;
 
     // simulate move
     board[toRow][toCol] = piece;
@@ -202,17 +197,44 @@ export const makeMove = (
         castleState: newCastleState,
         nextEnPassantState,
         promotionPiece,
-
         isSelfCheck: wouldKingBeInCheckAfterMove(
             board,
             pieceColor
         ),
-
         givesCheck: wouldKingBeInCheckAfterMove(
             board,
             enemyColor
-        )
+        ),
+        isCastleKingSide,
+        isCastleQueenSide
     };
+}
+
+export const undoMove = (
+    board, moveState, castleState, enPassantState,
+    isCastleKingSide, isCastleQueenSide
+) => {
+    const {
+        fromSquare, toSquare, movingPiece,
+        capturedPiece, capturedSquare
+    } = moveState;
+
+    // revert back move
+    board[fromSquare[0]][fromSquare[1]] = movingPiece;
+    board[toSquare[0]][toSquare[1]] = '';
+
+    // castle check
+    const colorCode = moveState.movingPiece[0];
+    const row = colorCode === "w" ? 7 : 0;
+    if (isCastleKingSide) {
+        board[row][7] = colorCode + 'r';
+        board[row][5] = '';
+    } else if (isCastleQueenSide) {
+        board[row][0] = colorCode + 'r';
+        board[row][3] = '';
+    }
+
+    // return captued piece
 }
 
 export class ChessMinMaxAlgo {
