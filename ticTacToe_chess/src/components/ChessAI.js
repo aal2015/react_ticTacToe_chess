@@ -117,6 +117,8 @@ export const makeMove = (
         movingPiece: piece,
         capturedPiece: null,
         capturedSquare: null,
+        isCastleKingSide: false,
+        isCastleQueenSide: false
     };
 
     const pieceColor = piece[0] === "w" ? "white" : "black";
@@ -153,6 +155,9 @@ export const makeMove = (
         toRow,
         toCol
     );
+
+    moveState.isCastleKingSide = isCastleKingSide;
+    moveState.isCastleQueenSide = isCastleQueenSide;
 
     // simulate move
     board[toRow][toCol] = piece;

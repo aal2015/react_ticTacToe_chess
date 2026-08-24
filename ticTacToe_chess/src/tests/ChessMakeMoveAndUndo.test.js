@@ -25,7 +25,9 @@ describe("makeMove", () => {
             toSquare: [4, 4],
             movingPiece: "wp",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.nextEnPassantState).toEqual({
@@ -66,7 +68,9 @@ describe("makeMove", () => {
             toSquare: [1, 0],
             movingPiece: "wr",
             capturedPiece: "bn",
-            capturedSquare: [1, 0]
+            capturedSquare: [1, 0],
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
     })
 
@@ -100,7 +104,9 @@ describe("makeMove", () => {
             toSquare: [2, 4],
             movingPiece: "wp",
             capturedPiece: "bp",
-            capturedSquare: [3, 4]
+            capturedSquare: [3, 4],
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
     })
 
@@ -131,7 +137,9 @@ describe("makeMove", () => {
             toSquare: [7, 6],
             movingPiece: "wn",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.isSelfCheck).toEqual(true);
@@ -162,7 +170,9 @@ describe("makeMove", () => {
             toSquare: [6, 4],
             movingPiece: "wr",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.isSelfCheck).toEqual(false);
@@ -205,7 +215,9 @@ describe("makeMove", () => {
             toSquare: [4, 4],
             movingPiece: "wp",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
     })
 
@@ -243,7 +255,9 @@ describe("makeMove", () => {
             toSquare: [7, 6],
             movingPiece: "wk",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: true,
+            isCastleQueenSide: false
         });
 
         expect(result.castleState).toEqual({
@@ -292,7 +306,9 @@ describe("makeMove", () => {
             toSquare: [7, 2],
             movingPiece: "wk",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: true
         });
 
         expect(result.castleState).toEqual({
@@ -341,7 +357,9 @@ describe("makeMove", () => {
             toSquare: [0, 6],
             movingPiece: "bk",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: true,
+            isCastleQueenSide: false
         });
 
         expect(result.castleState).toEqual({
@@ -390,7 +408,9 @@ describe("makeMove", () => {
             toSquare: [0, 2],
             movingPiece: "bk",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: true
         });
 
         expect(result.castleState).toEqual({
@@ -433,7 +453,9 @@ describe("makeMove", () => {
             toSquare: [6, 0],
             movingPiece: "wr",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.castleState).toEqual({
@@ -476,7 +498,9 @@ describe("makeMove", () => {
             toSquare: [6, 7],
             movingPiece: "wr",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.castleState).toEqual({
@@ -519,7 +543,9 @@ describe("makeMove", () => {
             toSquare: [1, 0],
             movingPiece: "br",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.castleState).toEqual({
@@ -562,7 +588,9 @@ describe("makeMove", () => {
             toSquare: [1, 7],
             movingPiece: "br",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         expect(result.castleState).toEqual({
@@ -579,7 +607,7 @@ describe("makeMove", () => {
 })
 
 describe("undoMove", () => {
-    it("after white plays pawn e4 as the first starting move, undoMove functio will revert the move back correctly", () => {        
+    it("after white plays pawn e4 as the first starting move, undoMove functio will revert the move back correctly", () => {
         const board = structuredClone(initBoard);
 
         // play the starting e4 move
@@ -600,7 +628,9 @@ describe("undoMove", () => {
             toSquare: [4, 4],
             movingPiece: "wp",
             capturedPiece: null,
-            capturedSquare: null
+            capturedSquare: null,
+            isCastleKingSide: false,
+            isCastleQueenSide: false
         });
 
         // undo move
@@ -609,5 +639,5 @@ describe("undoMove", () => {
         expect(board).toEqual(initBoard);
     })
 
-    
+
 })
