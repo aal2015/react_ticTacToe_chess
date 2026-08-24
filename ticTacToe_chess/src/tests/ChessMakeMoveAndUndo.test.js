@@ -806,4 +806,195 @@ describe("undoMove", () => {
 
         expect(board).toEqual(originalBoard);
     });
+
+    it("white captures a black piece and then the move is undone", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White rook on f2
+        board[6][5] = "wr";
+
+        // Black knight on f8
+        board[0][5] = "bn";
+
+        const originalBoard = structuredClone(board);
+
+        // White rook captures black knight
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "wr",
+            6, 5,
+            0, 5,
+            0
+        );
+
+        // Verify capture happened
+        expect(board[6][5]).toBe("");
+        expect(board[0][5]).toBe("wr");
+
+        expect(result.moveState).toEqual({
+            fromSquare: [6, 5],
+            toSquare: [0, 5],
+            movingPiece: "wr",
+            capturedPiece: "bn",
+            capturedSquare: [0, 5],
+            isCastleKingSide: false,
+            isCastleQueenSide: false
+        });
+
+        // Undo the move
+        undoMove(board, result.moveState);
+
+        // Verify original position is completely restored
+        expect(board).toEqual(originalBoard);
+
+        // Optional explicit checks
+        expect(board[6][5]).toBe("wr");
+        expect(board[0][5]).toBe("bn");
+    });
+
+    it("performs en passant capture and correctly undoes the move", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White pawn on d5
+        board[3][3] = "wp";
+
+        // Black pawn on e5
+        board[3][4] = "bp";
+
+        const originalBoard = structuredClone(board);
+
+        // White pawn captures en passant: d5 -> e6
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "wp",
+            3, 3,
+            2, 4,
+            20
+        );
+
+        // Verify en passant happened
+        expect(board[3][3]).toBe("");
+        expect(board[2][4]).toBe("wp");
+        expect(board[3][4]).toBe("");
+
+        expect(result.moveState).toEqual({
+            fromSquare: [3, 3],
+            toSquare: [2, 4],
+            movingPiece: "wp",
+            capturedPiece: "bp",
+            capturedSquare: [3, 4],
+            isCastleKingSide: false,
+            isCastleQueenSide: false
+        });
+
+        // Undo en passant
+        undoMove(
+            board,
+            result.moveState
+        );
+
+        // Verify moving pawn is restored
+        expect(board[3][3]).toBe("wp");
+
+        // Verify destination is cleared
+        expect(board[2][4]).toBe("");
+
+        // Verify captured black pawn is restored
+        expect(board[3][4]).toBe("bp");
+
+        // Verify entire board is back to original state
+        expect(board).toEqual(originalBoard);
+    });
+
+    it("promotes a white pawn and correctly undoes the promotion", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][0] = "bk";
+
+        // White pawn on e7
+        board[1][4] = "wp";
+
+        const originalBoard = structuredClone(board);
+
+        // White pawn: e7 -> e8 = Queen
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "wp",
+            1, 4,
+            0, 4,
+            0
+        );
+
+        // Verify promotion
+        expect(board[1][4]).toBe("");
+        expect(board[0][4]).toBe("wq");
+
+        expect(result.promotionPiece).toBe("q");
+
+        // Undo promotion
+        undoMove(board, result.moveState);
+
+        // Pawn should be restored
+        expect(board[1][4]).toBe("wp");
+
+        // Promotion square should be empty
+        expect(board[0][4]).toBe("");
+
+        // Entire position restored
+        expect(board).toEqual(originalBoard);
+    });
+
+    it("promotes a black pawn and correctly undoes the promotion", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][0] = "wk";
+        board[0][4] = "bk";
+
+        // Black pawn
+        board[6][4] = "bp";
+        
+        const originalBoard = structuredClone(board);
+
+        // Black pawn: e2 -> e1 = Queen
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "bp",
+            6, 4,
+            7, 4,
+            0
+        );
+
+        // Verify promotion
+        expect(board[6][4]).toBe("");
+        expect(board[7][4]).toBe("bq");
+
+        expect(result.promotionPiece).toBe("q");
+
+        // Undo promotion
+        undoMove(board, result.moveState);
+
+        // Pawn should be restored
+        expect(board[6][4]).toBe("bp");
+
+        // Promotion square should be empty
+        expect(board[7][4]).toBe("");
+
+        // Entire position restored
+        expect(board).toEqual(originalBoard);
+    });
 })

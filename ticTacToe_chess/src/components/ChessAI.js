@@ -216,7 +216,7 @@ export const makeMove = (
 }
 
 export const undoMove = (
-    board, moveState, enPassantState,
+    board, moveState,
 ) => {
     const {
         fromSquare, toSquare, movingPiece,
@@ -240,6 +240,9 @@ export const undoMove = (
     }
 
     // return captued piece
+    if (capturedPiece) {
+        board[capturedSquare[0]][capturedSquare[1]] = capturedPiece;
+    }
 }
 
 export class ChessMinMaxAlgo {
