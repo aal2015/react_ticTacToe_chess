@@ -216,12 +216,12 @@ export const makeMove = (
 }
 
 export const undoMove = (
-    board, moveState, castleState, enPassantState,
-    isCastleKingSide, isCastleQueenSide
+    board, moveState, enPassantState,
 ) => {
     const {
         fromSquare, toSquare, movingPiece,
-        capturedPiece, capturedSquare
+        capturedPiece, capturedSquare, 
+        isCastleKingSide, isCastleQueenSide
     } = moveState;
 
     // revert back move

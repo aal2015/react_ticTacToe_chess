@@ -607,7 +607,7 @@ describe("makeMove", () => {
 })
 
 describe("undoMove", () => {
-    it("after white plays pawn e4 as the first starting move, undoMove functio will revert the move back correctly", () => {
+    it("after white plays pawn e4 as the first starting move, undoMove function will revert the move back correctly", () => {
         const board = structuredClone(initBoard);
 
         // play the starting e4 move
@@ -634,10 +634,176 @@ describe("undoMove", () => {
         });
 
         // undo move
-        undoMove(board, result.moveState, result.castleState, result.nextEnPassantState)
+        undoMove(board, result.moveState, result.nextEnPassantState)
 
         expect(board).toEqual(initBoard);
     })
 
+    it("undoes white king side castling correctly", () => {
+        const board = emptyBoard();
 
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White rooks
+        board[7][0] = "wr";
+        board[7][7] = "wr";
+
+        const originalBoard = structuredClone(board);
+
+        // White: e1 -> g1
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "wk",
+            7, 4,
+            7, 6,
+            0
+        );
+
+        // Verify castle happened
+        expect(board[7][4]).toBe("");
+        expect(board[7][6]).toBe("wk");
+        expect(board[7][7]).toBe("");
+        expect(board[7][5]).toBe("wr");
+
+        expect(result.moveState.isCastleKingSide).toBe(true);
+        expect(result.moveState.isCastleQueenSide).toBe(false);
+
+        // Undo
+        undoMove(
+            board,
+            result.moveState,
+            result.nextEnPassantState
+        );
+
+        expect(board).toEqual(originalBoard);
+    });
+
+    it("undoes white queen side castling correctly", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // White rook
+        board[7][0] = "wr";
+        board[7][7] = "wr";
+
+        const originalBoard = structuredClone(board);
+
+        // White: e1 -> c1
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "wk",
+            7, 4,
+            7, 2,
+            0
+        );
+
+        // Verify castle happened
+        expect(board[7][4]).toBe("");
+        expect(board[7][2]).toBe("wk");
+        expect(board[7][0]).toBe("");
+        expect(board[7][3]).toBe("wr");
+
+        expect(result.moveState.isCastleKingSide).toBe(false);
+        expect(result.moveState.isCastleQueenSide).toBe(true);
+
+        // Undo
+        undoMove(
+            board,
+            result.moveState,
+            result.nextEnPassantState
+        );
+
+        expect(board).toEqual(originalBoard);
+    });
+
+    it("undoes black king side castling correctly", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // Black rook
+        board[0][7] = "br";
+        board[0][0] = "br";
+
+        const originalBoard = structuredClone(board);
+
+        // Black: e8 -> g8
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "bk",
+            0, 4,
+            0, 6,
+            0
+        );
+
+        // Verify castle happened
+        expect(board[0][4]).toBe("");
+        expect(board[0][6]).toBe("bk");
+        expect(board[0][7]).toBe("");
+        expect(board[0][5]).toBe("br");
+
+        expect(result.moveState.isCastleKingSide).toBe(true);
+        expect(result.moveState.isCastleQueenSide).toBe(false);
+
+        // Undo
+        undoMove(
+            board,
+            result.moveState,
+            result.nextEnPassantState
+        );
+
+        expect(board).toEqual(originalBoard);
+    });
+
+    it("undoes black queen side castling correctly", () => {
+        const board = emptyBoard();
+
+        // Kings
+        board[7][4] = "wk";
+        board[0][4] = "bk";
+
+        // Black rook
+        board[0][0] = "br";
+        board[0][7] = "br";
+
+        const originalBoard = structuredClone(board);
+
+        // Black: e8 -> c8
+        const result = makeMove(
+            board,
+            structuredClone(initCastleState),
+            "bk",
+            0, 4,
+            0, 2,
+            0
+        );
+
+        // Verify castle happened
+        expect(board[0][4]).toBe("");
+        expect(board[0][2]).toBe("bk");
+        expect(board[0][0]).toBe("");
+        expect(board[0][3]).toBe("br");
+
+        expect(result.moveState.isCastleKingSide).toBe(false);
+        expect(result.moveState.isCastleQueenSide).toBe(true);
+
+        // Undo
+        undoMove(
+            board,
+            result.moveState,
+            result.nextEnPassantState
+        );
+
+        expect(board).toEqual(originalBoard);
+    });
 })
