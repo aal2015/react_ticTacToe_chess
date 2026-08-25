@@ -12,100 +12,6 @@ import {
     pawnOpeningTable, pawnEndgameTable, rookTable
 } from './pieceSquareTables';
 
-const simulateMove = (
-    board, castleState, piece, fromRow,
-    fromCol, toRow, toCol, moveCount
-) => {
-    const boardClone =
-        board.map(
-            boardRow => [...boardRow]
-        );
-
-    const pieceColor =
-        piece[0] === "w"
-            ? "white"
-            : "black";
-
-    // EN PASSANT CAPTURE
-    handleEnPassant(
-        boardClone,
-        piece,
-        pieceColor,
-        fromCol,
-        toRow,
-        toCol
-    );
-
-    // handle castle
-    const {
-        castleState: newCastleState
-    } = handleCastleMove(
-        boardClone,
-        castleState,
-        piece,
-        fromRow,
-        fromCol,
-        toRow,
-        toCol
-    );
-
-    // simulate move
-    boardClone[toRow][toCol] = piece;
-    boardClone[fromRow][fromCol] = '';
-
-    // pawn promotion
-    let promotionPiece = null;
-    if (
-        piece[1] === "p" &&
-        (
-            (pieceColor === "white" && toRow === 0) ||
-            (pieceColor === "black" && toRow === 7)
-        )
-    ) {
-        // Always promote to queen
-        boardClone[toRow][toCol] =
-            piece[0] + "q";
-        promotionPiece = "q";
-    }
-
-    // update en passant
-    let nextEnPassantState = null;
-    if (
-        piece[1] === "p" &&
-        Math.abs(toRow - fromRow) === 2
-    ) {
-
-        nextEnPassantState = {
-            row: toRow,
-            col: toCol,
-            pieceColor,
-            moveCount: moveCount + 1
-        };
-    }
-
-    const enemyColor =
-        pieceColor === "white"
-            ? "black"
-            : "white";
-
-    return {
-        updatedBoard: boardClone,
-        castleState: newCastleState,
-        nextEnPassantState,
-        promotionPiece,
-
-        isSelfCheck: wouldKingBeInCheckAfterMove(
-            boardClone,
-            pieceColor
-        ),
-
-        givesCheck: wouldKingBeInCheckAfterMove(
-            boardClone,
-            enemyColor
-        )
-
-    };
-};
 
 export const makeMove = (
     board, castleState, piece, fromRow,
@@ -220,7 +126,7 @@ export const undoMove = (
 ) => {
     const {
         fromSquare, toSquare, movingPiece,
-        capturedPiece, capturedSquare, 
+        capturedPiece, capturedSquare,
         isCastleKingSide, isCastleQueenSide
     } = moveState;
 
@@ -429,12 +335,13 @@ export class ChessMinMaxAlgo {
                 for (const [moveRow, moveCol] of possibleMoves) {
                     let score = 0;
 
-                    // check enemy king
+                    // play move and undo
                     const {
                         givesCheck,
                         isSelfCheck,
-                        promotionPiece
-                    } = simulateMove(
+                        promotionPiece,
+                        moveState
+                    } = makeMove(
                         board,
                         castleState,
                         piece,
@@ -444,6 +351,7 @@ export class ChessMinMaxAlgo {
                         moveCol,
                         moveCount
                     );
+                    undoMove(board, moveState);
 
                     // Don't bother ordering illegal moves
                     if (isSelfCheck) {
@@ -500,12 +408,12 @@ export class ChessMinMaxAlgo {
             } = move;
 
             const {
-                updatedBoard,
                 castleState: newCastleState,
                 nextEnPassantState,
                 promotionPiece,
-                isSelfCheck
-            } = simulateMove(
+                isSelfCheck,
+                moveState
+            } = makeMove(
                 board,
                 castleState,
                 piece,
@@ -526,7 +434,7 @@ export class ChessMinMaxAlgo {
                     : "white";
 
             const result = this.minMax(
-                updatedBoard,
+                board,
                 nextColor,
                 nextEnPassantState,
                 newCastleState,
@@ -536,6 +444,8 @@ export class ChessMinMaxAlgo {
                 alpha,
                 beta
             );
+
+            undoMove(board, moveState);
 
             const score = result.score;
             if (pieceColor === "white") {
