@@ -53,7 +53,8 @@ const PlayerMaterial = ({
     label,
     pieces,
     pieceColor,
-    advantage
+    advantage,
+    isThinking = false
 }) => {
     return (
         <div className="w-full max-w-[480px] min-h-[32px] flex items-center justify-start gap-2">
@@ -61,14 +62,22 @@ const PlayerMaterial = ({
                 {label}
             </span>
 
-            <div className="flex items-center gap-1">
-                {renderCapturedPieces(pieces, pieceColor)}
-            </div>
-
-            {advantage > 0 && (
-                <span className="text-white font-bold">
-                    +{advantage}
+            {isThinking ? (
+                <span className="text-gray-300 italic">
+                    Thinking<span className="animate-pulse">...</span>
                 </span>
+            ) : (
+                <>
+                    <div className="flex items-center gap-1">
+                        {renderCapturedPieces(pieces, pieceColor)}
+                    </div>
+
+                    {advantage > 0 && (
+                        <span className="text-white font-bold">
+                            +{advantage}
+                        </span>
+                    )}
+                </>
             )}
         </div>
     );
@@ -80,7 +89,8 @@ const ChessBoard = ({
     activeSelect,
     lastMove,
     possibleMoves,
-    playerColor
+    playerColor,
+    isBotThinking
 }) => {
 
     // DISPLAY -> REAL COORDS
@@ -104,7 +114,6 @@ const ChessBoard = ({
             : [1, 2, 3, 4, 5, 6, 7, 8];
 
     const materialScore = calculateMaterialScore(boardState);
-    const materialAdvantage = materialScore['difference'];
     const capturedData = useMemo(() => getCapturedPieces(boardState), [boardState]);
 
     const topCapturedPieces =
@@ -139,6 +148,7 @@ const ChessBoard = ({
                     pieces={topCapturedPieces}
                     pieceColor={playerColor === "white" ? "w" : "b"}
                     advantage={botAdvantage}
+                    isThinking={isBotThinking}
                 />
 
                 {/* BOARD + RANK LABELS */}

@@ -8,7 +8,7 @@ import { processPlayerMove, generateMovesForPiece } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
 import {
-    initBoard, getStatusInfo, initCastleState,
+    initBoard, initCastleState,
 } from './chessUtil';
 import { ChessMinMaxAlgo } from './ChessAI';
 
@@ -24,6 +24,7 @@ const Chess = () => {
     const [lastMove, setLastMove] = useState(null);
     const [playerColor, setPlayerColor] = useState("white");
     const [moveHistory, setMoveHistory] = useState([]);
+    const [isBotThinking, setIsBotThinking] = useState(false);
 
     const resetGame = () => {
         setBoard(initBoard);
@@ -239,15 +240,10 @@ const Chess = () => {
         ));
     };
 
-    const status = getStatusInfo(
-        turn,
-        gameResult,
-        playerColor
-    );
-
     const makeAIMove = () => {
         const algo = new ChessMinMaxAlgo();
 
+        setIsBotThinking(true);
         const result = algo.minMax(
             board,
             turn,
@@ -259,8 +255,8 @@ const Chess = () => {
             -Infinity,
             Infinity
         );
-
         executeMove(result.move.from, result.move.to);
+        setIsBotThinking(false);
     };
 
     useEffect(() => {
@@ -302,6 +298,7 @@ const Chess = () => {
                     lastMove={lastMove}
                     playerColor={playerColor}
                     possibleMoves={possibleMoves}
+                    isBotThinking={isBotThinking}
                 />
 
             </div>
