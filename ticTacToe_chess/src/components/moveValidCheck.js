@@ -1,4 +1,4 @@
-import { pieceNotation, generateMoveNotation } from './chessUtil';
+import { generateMoveNotation } from './chessUtil';
 
 export const generateMovesForPiece = (
     board,

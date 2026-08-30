@@ -16,7 +16,6 @@ const Chess = () => {
     const [board, setBoard] = useState(initBoard);
     const [castleState, setCastleState] = useState(initCastleState);
     const [turn, setTurn] = useState("white");
-    const [winner, setWinner] = useState(null);
     const [gameResult, setGameResult] = useState(null);
     const [selected, setSelected] = useState(null);
     const [possibleMoves, setPossibleMoves] = useState([]);
@@ -72,7 +71,6 @@ const Chess = () => {
                 message: `${turn} wins!`,
                 winner: turn
             });
-            setWinner(turn);
         } else if (stalemateState) {
             setGameResult({
                 title: "Stalemate",
