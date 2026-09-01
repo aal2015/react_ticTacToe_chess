@@ -213,6 +213,8 @@ const Chess = () => {
     );
 
     const pieceSelect = (row, col) => {
+        if (isBotThinking) return; // ✅ Blocks all clicks
+        
         if (selected) {
             if (!executeMove(selected, [row, col])) {
                 setSelected(null);
