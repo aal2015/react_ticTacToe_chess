@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import {
+    useCallback, useState, useEffect, useRef
+} from 'react';
 import BackButton from './BackButton';
 import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
@@ -131,82 +133,84 @@ const Chess = () => {
         updateGameResult(checkMateState, stalemateState);
     };
 
-    const executeMove = (selected, target) => {
-        const result = processPlayerMove({
-            board,
-            selected,
-            target,
-            turn,
-            castleState,
-            enPassantState,
-            moveCount
-        });
-
-        if (!result.validMove) {
-            return false;
-        }
-
-        // PAWN PROMOTION
-        if (result.move.isPromotion) {
-            setPromotionData({
-                boardClone: result.board.board,
-                row: result.move.to[0],
-                col: result.move.to[1],
-                movingPiece: result.move.movingPiece,
-                selected: result.move.from,
-                newCastleState: result.board.castleState,
-                nextEnPassantState: result.board.enPassantState
+    const executeMove = useCallback(
+        (selected, target) => {
+            const result = processPlayerMove({
+                board,
+                selected,
+                target,
+                turn,
+                castleState,
+                enPassantState,
+                moveCount
             });
-            setShowPromotionModal(true);
-            setSelected(null);
-            return;
-        }
 
-        // GAME RESULT
-        updateGameResult(result.game.checkmate, result.game.stalemate);
-
-        // MOVE HISTORY
-        setMoveHistory(prev => {
-            const history = [...prev];
-            if (turn === "white") {
-                history.push({
-                    moveNumber:
-                        Math.floor(moveCount / 2) + 1,
-                    white: result.notation,
-                    black: ""
-                });
-            } else {
-                history[history.length - 1].black = result.notation;
+            if (!result.validMove) {
+                return false;
             }
-            return history;
-        });
 
-        // UPDATE BOARD
-        setBoard(result.board.board);
-        setCastleState(
-            result.board.castleState
-        );
-        setEnPassantState(
-            result.board.enPassantState
-        );
+            // PAWN PROMOTION
+            if (result.move.isPromotion) {
+                setPromotionData({
+                    boardClone: result.board.board,
+                    row: result.move.to[0],
+                    col: result.move.to[1],
+                    movingPiece: result.move.movingPiece,
+                    selected: result.move.from,
+                    newCastleState: result.board.castleState,
+                    nextEnPassantState: result.board.enPassantState
+                });
+                setShowPromotionModal(true);
+                setSelected(null);
+                return;
+            }
 
-        // LAST MOVE HIGHLIGHT
-        setLastMove({
-            from: selected,
-            to: target
-        });
+            // GAME RESULT
+            updateGameResult(result.game.checkmate, result.game.stalemate);
 
-        // NEXT TURN
-        setTurn(
-            turn === "white"
-                ? "black"
-                : "white"
-        );
-        setMoveCount(moveCount + 1);
-        setSelected(null);
-        setPossibleMoves([]); // Clear possible moves after move completes
-        return true;
-    }
+            // MOVE HISTORY
+            setMoveHistory(prev => {
+                const history = [...prev];
+                if (turn === "white") {
+                    history.push({
+                        moveNumber:
+                            Math.floor(moveCount / 2) + 1,
+                        white: result.notation,
+                        black: ""
+                    });
+                } else {
+                    history[history.length - 1].black = result.notation;
+                }
+                return history;
+            });
+
+            // UPDATE BOARD
+            setBoard(result.board.board);
+            setCastleState(
+                result.board.castleState
+            );
+            setEnPassantState(
+                result.board.enPassantState
+            );
+
+            // LAST MOVE HIGHLIGHT
+            setLastMove({
+                from: selected,
+                to: target
+            });
+
+            // NEXT TURN
+            setTurn(
+                turn === "white"
+                    ? "black"
+                    : "white"
+            );
+            setMoveCount(moveCount + 1);
+            setSelected(null);
+            setPossibleMoves([]); // Clear possible moves after move completes
+            return true;
+        }
+    );
 
     const pieceSelect = (row, col) => {
         if (selected) {
@@ -241,40 +245,116 @@ const Chess = () => {
     };
 
     const makeAIMove = () => {
-        const algo = new ChessMinMaxAlgo();
+        // const algo = new ChessMinMaxAlgo();
 
         setIsBotThinking(true);
-        const result = algo.minMax(
+        // const result = algo.minMax(
+        //     board,
+        //     turn,
+        //     enPassantState,
+        //     castleState,
+        //     moveCount,
+        //     0,
+        //     5,
+        //     -Infinity,
+        //     Infinity
+        // );
+        // executeMove(result.move.from, result.move.to);
+        // setIsBotThinking(false);
+
+        aiWorkerRef.current.postMessage({
             board,
             turn,
             enPassantState,
             castleState,
             moveCount,
-            0,
-            5,
-            -Infinity,
-            Infinity
-        );
-        executeMove(result.move.from, result.move.to);
-        setIsBotThinking(false);
+            depth: 5
+        });
     };
 
+    const aiWorkerRef = useRef(null);
+
     useEffect(() => {
-        if (turn !== playerColor) {
-            const id = setTimeout(makeAIMove, 0);
-            return () => clearTimeout(id);
+        aiWorkerRef.current = new Worker(
+            new URL("./chessAI.worker.js", import.meta.url),
+            { type: "module" }
+        );
+
+        return () => {
+            aiWorkerRef.current?.terminate();
+        };
+    }, []);
+
+    useEffect(() => {
+        const worker = aiWorkerRef.current;
+
+        if (!worker) {
+            return;
         }
+
+        const handleWorkerMessage = (event) => {
+            const result = event.data;
+
+            if (result?.error) {
+                console.error(
+                    "AI calculation error:",
+                    result.error
+                );
+
+                setIsBotThinking(false);
+                return;
+            }
+
+            if (!result?.move) {
+                console.error(
+                    "AI returned invalid result:",
+                    result
+                );
+
+                setIsBotThinking(false);
+                return;
+            }
+
+            executeMove(
+                result.move.from,
+                result.move.to
+            );
+
+            setIsBotThinking(false);
+        };
+
+        worker.addEventListener(
+            "message",
+            handleWorkerMessage
+        );
+
+        return () => {
+            worker.removeEventListener(
+                "message",
+                handleWorkerMessage
+            );
+        };
+    }, [executeMove]);
+
+    useEffect(() => {
+        if (turn === playerColor) {
+            return;
+        } else if (isBotThinking) {
+            return;
+        }
+
+        const id = setTimeout(() => {
+            makeAIMove();
+        }, 0);
+
+        return () => clearTimeout(id);
     }, [
-        board,
         turn,
-        castleState,
-        enPassantState,
-        moveCount,
         playerColor
     ]);
 
     return (<>
-    <BackButton />
+        <BackButton />
         <div
             className="
             max-w-7xl
