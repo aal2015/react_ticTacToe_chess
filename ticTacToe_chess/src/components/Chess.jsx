@@ -37,6 +37,7 @@ const Chess = () => {
         setMoveHistory([]);
         setCastleState(initCastleState);
         setGameResult(null);
+        setLastMove(null);
 
         aiWorkerRef.current?.terminate();
 
