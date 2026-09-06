@@ -37,6 +37,15 @@ const Chess = () => {
         setMoveHistory([]);
         setCastleState(initCastleState);
         setGameResult(null);
+
+        aiWorkerRef.current?.terminate();
+
+        aiWorkerRef.current = new Worker(
+            new URL("./chessAI.worker.js", import.meta.url),
+            { type: "module" }
+        );
+
+        setIsBotThinking(false);
     };
 
     const onClickResetButton = () => {
@@ -61,6 +70,8 @@ const Chess = () => {
     const confirmReset = () => {
         resetGame();
         setShowResetModal(false);
+        console.log("Hit");
+        
     };
 
     const cancelReset = () => {
@@ -89,7 +100,6 @@ const Chess = () => {
             col,
             movingPiece,
             selected,
-            newCastleState,
             nextEnPassantState,
             isCapture,
             isEnPassant
@@ -214,7 +224,7 @@ const Chess = () => {
 
     const pieceSelect = (row, col) => {
         if (isBotThinking) return; // ✅ Blocks all clicks
-        
+
         if (selected) {
             if (!executeMove(selected, [row, col])) {
                 setSelected(null);
@@ -247,22 +257,7 @@ const Chess = () => {
     };
 
     const makeAIMove = () => {
-        // const algo = new ChessMinMaxAlgo();
-
         setIsBotThinking(true);
-        // const result = algo.minMax(
-        //     board,
-        //     turn,
-        //     enPassantState,
-        //     castleState,
-        //     moveCount,
-        //     0,
-        //     5,
-        //     -Infinity,
-        //     Infinity
-        // );
-        // executeMove(result.move.from, result.move.to);
-        // setIsBotThinking(false);
 
         aiWorkerRef.current.postMessage({
             board,
@@ -352,7 +347,8 @@ const Chess = () => {
         return () => clearTimeout(id);
     }, [
         turn,
-        playerColor
+        playerColor,
+        isBotThinking
     ]);
 
     return (<>
