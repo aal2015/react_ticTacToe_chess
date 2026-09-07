@@ -6,13 +6,13 @@ import ChessBoard from './ChessBoard';
 import ChessSideBar from './ChessSideBar';
 import GameOverModal from './GameOverModal';
 import ResetGameModal from './GameResetModal';
+import ColorSwitchModal from './ColorSwitchModal';
 import { processPlayerMove, generateMovesForPiece } from './moveValidCheck';
 import { handlePromotion } from './promotionLogic';
 import PromotionModal from './PawnPromotionModal';
 import {
     initBoard, initCastleState,
 } from './chessUtil';
-import { ChessMinMaxAlgo } from './ChessAI';
 
 const Chess = () => {
     const [board, setBoard] = useState(initBoard);
@@ -40,7 +40,6 @@ const Chess = () => {
         setLastMove(null);
 
         aiWorkerRef.current?.terminate();
-
         aiWorkerRef.current = new Worker(
             new URL("./chessAI.worker.js", import.meta.url),
             { type: "module" }
@@ -53,8 +52,29 @@ const Chess = () => {
         const isStandardGame = JSON.stringify(initBoard) === JSON.stringify(board);
         if (!isStandardGame) {
             setShowResetModal(true);
+        }
+    }
+
+    const switchColor = (isStandardGame = true) => {
+        aiWorkerRef.current?.terminate();
+        aiWorkerRef.current = new Worker(
+            new URL("./chessAI.worker.js", import.meta.url),
+            { type: "module" }
+        );
+
+        setIsBotThinking(false);
+        setPlayerColor(playerColor === 'white' ? 'black' : 'white');
+        if (isStandardGame) {
+            setBoard(initBoard);
+        }
+    }
+
+    const onClickSwitchColor = () => {
+        const isStandardGame = JSON.stringify(initBoard) === JSON.stringify(board);
+        if (!isStandardGame) {
+            setShowColorModal(true);  // Show confirmation modal
         } else {
-            resetGame();
+            switchColor();            // Direct switch for standard games
         }
     }
 
@@ -63,6 +83,7 @@ const Chess = () => {
     const [promotionData, setPromotionData] =
         useState(null);
     const [showResetModal, setShowResetModal] = useState(false);
+    const [showColorModal, setShowColorModal] = useState(false);
 
     const closeGameOverModal = () => {
         setGameResult(null);
@@ -71,12 +92,19 @@ const Chess = () => {
     const confirmReset = () => {
         resetGame();
         setShowResetModal(false);
-        console.log("Hit");
-        
     };
 
     const cancelReset = () => {
         setShowResetModal(false);
+    };
+
+    const confirmSwitch = () => {
+        switchColor();
+        setShowColorModal(false);
+    };
+
+    const cancelSwitch = () => {
+        setShowColorModal(false);
     };
 
     const updateGameResult = (checkMateState, stalemateState) => {
@@ -418,7 +446,7 @@ const Chess = () => {
                     moveHistory={moveHistory}
                     onReset={onClickResetButton}
                     playerColor={playerColor}
-                    onColorChange={setPlayerColor}
+                    onColorChange={onClickSwitchColor}
                 />
             </div>
 
@@ -442,6 +470,12 @@ const Chess = () => {
                 isOpen={showResetModal}
                 onConfirm={confirmReset}
                 onCancel={cancelReset}
+            />
+            <ColorSwitchModal
+                isOpen={showColorModal}
+                onConfirm={confirmSwitch}
+                onCancel={cancelSwitch}
+                currentColor={playerColor}
             />
         </div>
     </>);

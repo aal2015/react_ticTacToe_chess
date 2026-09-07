@@ -39,13 +39,7 @@ const ChessSideBar = ({
                 </p>
 
                 <button
-                    onClick={() =>
-                        onColorChange(
-                            playerColor === 'white'
-                                ? 'black'
-                                : 'white'
-                        )
-                    }
+                    onClick={onColorChange}
                     className={`
                                 w-full
                                 py-2
