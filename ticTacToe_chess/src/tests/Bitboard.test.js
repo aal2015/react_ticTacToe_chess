@@ -90,4 +90,68 @@ describe("Bitboard representation", () => {
 
     });
 
+    describe("pawn movement", () => {
+
+        it("should move white pawn e2-e4 and black pawn e7-e5", () => {
+
+            // Start with initial position
+            const bitboards = { ...initBitboards };
+
+            // Convert to 2D board
+            const initialBoard = bitboardsToBoard(bitboards);
+
+            // Validate initial position
+            expect(initialBoard).toEqual([
+                ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+                ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+                ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+            ]);
+
+            // --------------------------------
+            // WHITE: e2 → e4
+            // --------------------------------
+
+            const whitePawnFrom = 12; // e2
+            const whitePawnTo = 28;   // e4
+
+            // Turn OFF e2
+            bitboards.whitePawns &= ~(1n << BigInt(whitePawnFrom));
+
+            // Turn ON e4
+            bitboards.whitePawns |= 1n << BigInt(whitePawnTo);
+
+            // --------------------------------
+            // BLACK: e7 → e5
+            // --------------------------------
+
+            const blackPawnFrom = 52; // e7
+            const blackPawnTo = 36;   // e5
+
+            // Turn OFF e7
+            bitboards.blackPawns &= ~(1n << BigInt(blackPawnFrom));
+
+            // Turn ON e5
+            bitboards.blackPawns |= 1n << BigInt(blackPawnTo);
+
+            // Convert the resulting bitboards to 2D board
+            const resultBoard = bitboardsToBoard(bitboards);
+
+            // Validate resulting position
+            expect(resultBoard).toEqual([
+                ['br', 'bn', 'bb', 'bq', 'bk', 'bb', 'bn', 'br'],
+                ['bp', 'bp', 'bp', 'bp', '', 'bp', 'bp', 'bp'],
+                ['', '', '', '', '', '', '', ''],
+                ['', '', '', '', 'bp', '', '', ''],
+                ['', '', '', '', 'wp', '', '', ''],
+                ['', '', '', '', '', '', '', ''],
+                ['wp', 'wp', 'wp', 'wp', '', 'wp', 'wp', 'wp'],
+                ['wr', 'wn', 'wb', 'wq', 'wk', 'wb', 'wn', 'wr'],
+            ]);
+        });
+    });
 });
