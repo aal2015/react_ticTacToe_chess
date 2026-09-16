@@ -99,54 +99,145 @@ const isSquareUnderAttack = (
     targetCol,
     enemyColor
 ) => {
+    const enemyPiece = (pieceType) => `${enemyColor === "white" ? "w" : "b"}${pieceType}`;
 
-    for (let row = 0; row < 8; row++) {
+    // --------------------------------
+    // SLIDING ATTACKS
+    // --------------------------------
 
-        for (let col = 0; col < 8; col++) {
+    const directions = [
+        [-1, 0],  // up
+        [1, 0],   // down
+        [0, -1],  // left
+        [0, 1],   // right
 
+        [-1, -1], // up-left
+        [-1, 1],  // up-right
+        [1, -1],  // down-left
+        [1, 1]    // down-right
+    ];
+
+    for (const [rowDir, colDir] of directions) {
+        let row = targetRow + rowDir;
+        let col = targetCol + colDir;
+
+        while (
+            row >= 0 &&
+            row < 8 &&
+            col >= 0 &&
+            col < 8
+        ) {
             const piece = board[row][col];
 
-            if (piece === '') {
-                continue;
+            if (piece !== "") {
+
+                const isStraight =
+                    rowDir === 0 || colDir === 0;
+
+                const isDiagonal =
+                    Math.abs(rowDir) === Math.abs(colDir);
+
+                if (
+                    piece === enemyPiece("q") ||
+                    (isStraight && piece === enemyPiece("r")) ||
+                    (isDiagonal && piece === enemyPiece("b"))
+                ) {
+                    return true;
+                }
+
+                // First piece blocks the ray
+                break;
             }
 
-            const pieceColor =
-                piece[0] === 'w'
-                    ? 'white'
-                    : 'black';
+            row += rowDir;
+            col += colDir;
+        }
+    }
 
-            if (pieceColor !== enemyColor) {
-                continue;
-            }
+    // --------------------------------
+    // KNIGHT ATTACKS
+    // --------------------------------
 
-            const possibleMoves = generateMovesForPiece(
-                board,
-                piece,
-                row,
-                col,
-                pieceColor,
-                null,
-                null,
-                0,
-                true
-            )
+    const knightOffsets = [
+        [-2, -1],
+        [-2, 1],
+        [-1, -2],
+        [-1, 2],
+        [1, -2],
+        [1, 2],
+        [2, -1],
+        [2, 1]
+    ];
 
-            const attacking =
-                possibleMoves.some(
-                    ([moveRow, moveCol]) =>
-                        moveRow === targetRow &&
-                        moveCol === targetCol
-                );
+    for (const [rowOffset, colOffset] of knightOffsets) {
+        const row = targetRow + rowOffset;
+        const col = targetCol + colOffset;
 
-
-            if (attacking) {
+        if (
+            row >= 0 &&
+            row < 8 &&
+            col >= 0 &&
+            col < 8
+        ) {
+            if (board[row][col] === enemyPiece("n")) {
                 return true;
             }
         }
     }
 
+    // --------------------------------
+    // King ATTACKS
+    // --------------------------------
+
+    for (let rowOffset = -1; rowOffset <= 1; rowOffset++) {
+        for (let colOffset = -1; colOffset <= 1; colOffset++) {
+
+            // Don't check the target square itself
+            if (rowOffset === 0 && colOffset === 0) {
+                continue;
+            }
+
+            const row = targetRow + rowOffset;
+            const col = targetCol + colOffset;
+
+            // Stay inside the board
+            if (
+                row < 0 ||
+                row >= 8 ||
+                col < 0 ||
+                col >= 8
+            ) {
+                continue;
+            }
+
+            // Enemy king attacks the target
+            if (board[row][col] === enemyPiece("k")) {
+                return true;
+            }
+        }
+    }
+
+    // --------------------------------
+    // PAWN ATTACKS
+    // --------------------------------
+
+    const pawnRow = enemyColor === "white"
+        ? targetRow + 1 : targetRow - 1;
+
+    for (const col of [targetCol - 1, targetCol + 1]) {
+        if (
+            pawnRow >= 0 &&
+            pawnRow < 8 &&
+            col >= 0 &&
+            col < 8 &&
+            board[pawnRow][col] === enemyPiece("p")
+        ) {
+            return true;
+        }
+    }
+
     return false;
-};
+}
 
 const findPlayerKingPosition = (
     board,
@@ -1058,7 +1149,7 @@ const hasAnyLegalMove = (
     color,
     enPassantState,
     moveCount
-) => {    
+) => {
     const pieceColorCode =
         color === "white" ? "w" : "b";
 
